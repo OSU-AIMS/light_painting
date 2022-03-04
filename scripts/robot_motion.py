@@ -3,6 +3,7 @@
 import rospy
 from robot_control import * 
 import copy
+from geometry_msgs.msg import Pose
 
 def main():
     rospy.init_node('light_painting', anonymous=False)
@@ -17,7 +18,7 @@ def main():
 
     wpose = rc.move_group.get_current_pose().pose
     wpose.position.x += scale * 0.8 
-    waypoints.append(copy.deepcopy(wpose))
+    waypoints.append(wpose)
 
     plan = rc.plan_cartesian_path(waypoints)
 
