@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 from robot_control import * 
@@ -22,11 +22,11 @@ def main():
 
     plan = rc.plan_cartesian_path(waypoints)
 
-    raw_input("Cartesian Plan: press <enter>")
+    input("Cartesian Plan: press <enter>")
     # input("Cartesian Plan: press <enter>")
     rc.execute_plan(plan)
 
-    raw_input("All zeros: press <enter>")
+    input("All zeros: press <enter>")
     # input("All zeros: press <enter>")
 
     rc.goto_all_zeros()

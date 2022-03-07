@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+    <!-- Launch Physical Robot w/ Lab Connection Defaults -->
+    <include file="$(find aims_wc2_pgn64_moveit_config)/launch/moveit_planning_execution.launch" >
+        <arg name="sim" default="false"/>
+        <arg name="robot_ip" default="10.10.10.200" />
+    </include>
+
+<!-- Launch actual code to test -->
+    <!-- <node pkg="tic_tac_toe" type="camera2board_tf_publisher.py" name="camera2board_tf_publisher"  /> -->
+    <!-- Comment below to debug the individual publishers or run them separately in the terminal -->
+    <!-- <node pkg="tic_tac_toe" type="circle_state_publisher.py" name="circle_state_publisher"  /> -->
+    <!-- <node pkg="tic_tac_toe" type="tile_locations_publisher.py" name="tile_locations_publisher"  /> -->
+
+
+    <node name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false" args = "-d $(find light_painting)/config/moveit.rviz" />
+   
+</launch>
