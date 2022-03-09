@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
-from curses import baudrate
 import rospy
 from robot_control import * 
-import copy
+# import copy
 from geometry_msgs.msg import Pose
 
+# For Arduino Control
+import serial
+arduino = serial.Serial(port='/dev/ttyACM0',baudrate=9600,timeout=0.1)
 
 # Custom Scripts
-import light_painting.io as arduino
+from test import py_to_ino_LIGHT_ON_OFF_test as arduino_led
 
 
 def main():
@@ -19,13 +21,14 @@ def main():
     rc.set_vel(0.1)
     rc.set_accel(0.1)
 
-    rc.goto_all_zeros()
+    rc.goto_all_zeros() 
 
     waypoints = []
     scale =0.5
 
     wpose = rc.move_group.get_current_pose().pose
     wpose.position.x += scale * 0.1 
+    # Robot motions don't match RVIZ Axis for EEF TCP
     # wpose.position.y: twists the arm about the blue axis
     # wpose.position.x: moves robot forward
     # wpose.position.z: moves robot vertically up
@@ -39,14 +42,14 @@ def main():
     # for Python 2.7: raw_input("Cartesian Plan: press <enter>")
     rc.execute_plan(plan)
 
+    print(arduino.readline())             #read the serial data and print it as line
+    print("Enter 1 to ON LED and 0 to OFF LED")
+    user_input = input()                  #waits until user enters data
+
+    arduino_led.control_led(user_input)     # call to turn LED on/off (as of 3/9: currently requires user input)
+
+
  #### Arduino Communication Plan: ############
-    # Send I/O to turn on light on arduino
-    # publish to cpp node
-    # then in Arduino script, 
-    # subscribe to cpp node to turn on light
-    # hopefully this works??
-    # NVM: we can write arduino code using python
-    # https://create.arduino.cc/projecthub/ansh2919/serial-communication-between-python-and-arduino-e7cce0
     
 
 
