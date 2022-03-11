@@ -23,7 +23,7 @@ def led_ON(): # turns LED on automatically
 
 def control_led(input_data):
     '''
-    control LED through user input
+    control LED through manual input
     '''
     while 1:                                           #infinite loop
         input_data = input()

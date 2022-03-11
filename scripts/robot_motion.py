@@ -2,7 +2,7 @@
 
 import rospy
 from robot_control import * 
-# import copy
+import copy
 from geometry_msgs.msg import Pose
 
 # For Arduino Control
@@ -27,12 +27,27 @@ If you solely used the Arduino script, you would need to have a user input to tu
 
 # Custom Scripts
 import py_to_ino_LIGHT_ON_OFF_test as arduino_led
+import image_inputs as input_image
 
 
 def main():
-    # rospy.init_node('light_painting', anonymous=False)
-    # rospy.loginfo(">> light_painting Node sucessfully created")
+    rospy.init_node('light_painting', anonymous=False)
+    rospy.loginfo(">> light_painting Node sucessfully created")
 
+    # print(input_image.binary)
+    '''
+    # Next steps for After break: 
+    # use if statements to read value in array
+    If value = 0 (black), light off, move to next pixel
+    If value = 255(white), light on --> but where??
+    Need to figure out:
+    - the spacing between the pixels.
+    - 1 pixel = ?? inches (or meters)
+    - Reduce robot velocity to 10%
+    - Fix trajector error: "Validation failed: Trajectory doesn't start at current position."
+       
+
+    '''
     rc= moveManipulator('mh5l')
     rc.set_vel(0.1)
     rc.set_accel(0.1)
@@ -46,8 +61,8 @@ def main():
 
     # TOP LEFT (30cm up and 50 cm left from all zeros)
     # Pose axis relative Robot origin axis
-    wpose.position.z += 0.3
-    wpose.position.y += -0.5
+    wpose.position.z += 0.1
+    wpose.position.y += -0.25
     
     waypoints.append(wpose)
 
@@ -60,12 +75,16 @@ def main():
     rc.execute_plan(plan)
 
 
-    # Box 1m by 1m
-    MOTION_BOX_LENGTH = 1
+    # set 1 inch = 1 pixel
+
+    # Box length (m)
+    MOTION_BOX_LENGTH = 0.5
+
     # width is number of divisions over length
-    WIDTH = 10
+    WIDTH = 2
 
     for i in range(WIDTH):
+        wpose = rc.move_group.get_current_pose().pose
         waypoints = []
         wpose.position.y += MOTION_BOX_LENGTH/WIDTH
         waypoints.append(wpose)

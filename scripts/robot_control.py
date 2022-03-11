@@ -146,9 +146,9 @@ class moveManipulator(object):
         # for this tutorial.
         (plan, fraction) = self.move_group.compute_cartesian_path(
                                         waypoints,   # waypoints to follow
-                                        0.05,        # eef_step
+                                        0.01,        # eef_step
                                         0.0)         # jump_threshold
-
+        rospy.loginfo(plan)
         return plan, fraction
     def execute_plan(self, plan):
         ## Execute a Plan
