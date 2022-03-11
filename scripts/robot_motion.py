@@ -6,16 +6,32 @@ from robot_control import *
 from geometry_msgs.msg import Pose
 
 # For Arduino Control
+import time
 import serial
 arduino = serial.Serial(port='/dev/ttyACM0',baudrate=9600,timeout=0.1)
+'''
+Summary of Arduino-Python control:
+- Write code in Arduino IDE (See /arduino_control/light_painting/Py_to_ino_Light_ON_OFF_test/Py_to_ino_Light_ON_OFF_test.ino)
+- Write Python script to control the arduino (see py_to_ino_LIGHT_ON_OFF_test.py) 
+- Once code is on Arduino, you only need to run the python script to control it. 
+- Python acts as a "remote control" for the Arduino script  allows you to integrate with other python scripts easily
+
+Benefits: 
+- Can create basic Arduino code (say light turns off/on based on user input of 0/1 respectively)
+- then create python functions that automatically send the input of 0 or 1 to Arduino
+
+This would allow you to run the python script normally without needing the user input to turn the LED off/on. 
+If you solely used the Arduino script, you would need to have a user input to turn led off/on 
+& ROS nodes to communicate between the other python scripts we have for further integration.
+'''
 
 # Custom Scripts
-from test import py_to_ino_LIGHT_ON_OFF_test as arduino_led
+import py_to_ino_LIGHT_ON_OFF_test as arduino_led
 
 
 def main():
-    rospy.init_node('light_painting', anonymous=False)
-    rospy.loginfo(">> light_painting Node sucessfully created")
+    # rospy.init_node('light_painting', anonymous=False)
+    # rospy.loginfo(">> light_painting Node sucessfully created")
 
     rc= moveManipulator('mh5l')
     rc.set_vel(0.1)
@@ -56,19 +72,22 @@ def main():
         rospy.loginfo(wpose)
         plan, fraction = rc.plan_cartesian_path(waypoints)
         input(f"Cartesian Plan {i}: press <enter>")
+
+        print(arduino.readline())             #read the serial data and print it as line
+        arduino_led.led_ON()
+        time.sleep(1)
+        arduino_led.led_OFF()
+        time.sleep(0.5)
         rc.execute_plan(plan)
+# Sequentially read: so how can we turn the light on & off while the robot is moving in case there is a gradient?
 
-    print(arduino.readline())             #read the serial data and print it as line
-    print("Enter 1 to ON LED and 0 to OFF LED")
-    user_input = input()                  #waits until user enters data
-
-    arduino_led.control_led(user_input)     # call to turn LED on/off (as of 3/9: currently requires user input)
-
-
-    #### Arduino Communication Plan: ############
-    
     input("All zeros: press <enter>")
     # for Python 2.7: raw_input("All zeros: press <enter>")
+
+# Uncomment below to manually control LED through button input
+    # print("Enter 1 to ON LED and 0 to OFF LED")
+    # user_input = input()                  #waits until user enters data
+    # arduino_led.control_led(user_input)     # call to turn LED on/off (as of 3/9: currently requires user input)
 
     rc.goto_all_zeros()
 

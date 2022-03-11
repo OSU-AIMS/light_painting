@@ -13,7 +13,18 @@ import time
 arduino = serial.Serial(port='/dev/ttyACM0',baudrate=9600,timeout=0.1)
 # Code from: https://www.electronicshub.org/controlling-arduino-led-python/
 
+
+def led_OFF(): # turn LED off automatically
+    arduino.write(b'0')
+
+def led_ON(): # turns LED on automatically
+    arduino.write(b'1')
+
+
 def control_led(input_data):
+    '''
+    control LED through user input
+    '''
     while 1:                                           #infinite loop
         input_data = input()
         print("you entered", input_data)          #prints the data for confirmation
@@ -25,6 +36,9 @@ def control_led(input_data):
             arduino.write(b'0')             #send 0 to arduino (converted to bytes)
             # TypeError: unicode strings are not supported, please encode to bytes: '1' -->> convert strings to bytes
             print("LED OFF")
+        if (input_data == '2'):
+            print("Exiting LED control")
+            break
 
 def main():    
     print(arduino.readline())             #read the serial data and print it as line
