@@ -18,7 +18,7 @@ Summary of Arduino-Python control:
 
 Benefits: 
 - Can create basic Arduino code (say light turns off/on based on user input of 0/1 respectively)
-- then create python functions that automatically send the input of 0 or 1 to Arduino
+- then create python functions as a control that automatically send the input of 0 or 1 to Arduino
 
 This would allow you to run the python script normally without needing the user input to turn the LED off/on. 
 If you solely used the Arduino script, you would need to have a user input to turn led off/on 
@@ -34,7 +34,7 @@ def main():
     rospy.init_node('light_painting', anonymous=False)
     rospy.loginfo(">> light_painting Node sucessfully created")
 
-    # print(input_image.binary)
+    print(input_image.binary)
     '''
     # Next steps for After break: 
     # use if statements to read value in array
