@@ -9,6 +9,12 @@ from geometry_msgs.msg import Pose
 import time
 import serial
 arduino = serial.Serial(port='/dev/ttyACM0',baudrate=9600,timeout=0.1)
+
+# For Image Manipulation
+import cv2
+import numpy as np
+from PIL import Image
+
 '''
 Summary of Arduino-Python control:
 - Write code in Arduino IDE (See /arduino_control/light_painting/Py_to_ino_Light_ON_OFF_test/Py_to_ino_Light_ON_OFF_test.ino)
@@ -34,20 +40,41 @@ def main():
     rospy.init_node('light_painting', anonymous=False)
     rospy.loginfo(">> light_painting Node sucessfully created")
 
-    print(input_image.binary)
+    # cv2.imshow("Binary input image",input_image.binary)
+    # cv2.waitKey(1)
+
+    # print("Binary: number of rows along horizontal",np.size(input_image.binary,0))
+    # # Above and below print statements obtain size of image
+    # print("Binary: number of columns along Vertical",np.size(input_image.binary,1))
+
+    # if input_image.binary == 0:
+    #     arduino_led.led_OFF()
+    # if input_image.binary == 255:
+    #     arduino_led.led_ON()
+    #     time.sleep(1)
+    
     '''
-    # Next steps for After break: 
+    # Next steps for After Spring break break: 
+    How to set top left corner of image as (0,0)?
+    - Plan: 
+    --> set 1st movment to be top left corner of image.
+    Ex: 1st movement goes to (0.3,0.5) (m)
+        when robot gets to that position, read top left pixel value: If 255 = LED ON, If 0 = LED OFF
+        Move sequentially through each pixel value from left to right until you reach bottom right corner
+        (Or we pre-read all pixel values, get their location then send robot to ones with value of 255 so it keeps the light on-works well if 255 values are beside each other)
+    
     # use if statements to read value in array
     If value = 0 (black), light off, move to next pixel
-    If value = 255(white), light on --> but where??
+    If value = 255(white), light on 
+    
     Need to figure out:
     - the spacing between the pixels.
     - 1 pixel = ?? inches (or meters)
-    - Reduce robot velocity to 10%
-    - Fix trajector error: "Validation failed: Trajectory doesn't start at current position."
-       
-
+    - Reduce robot velocity to 10% --> reduced see robot_control script (as of 3/21)
+    - Fix trajectory error: "Validation failed: Trajectory doesn't start at current position."
+    - Fix Trajectory error: "Validation failed: Missing velocity data for trajectory pt 0"
     '''
+
     rc= moveManipulator('mh5l')
     rc.set_vel(0.1)
     rc.set_accel(0.1)
@@ -74,19 +101,22 @@ def main():
     # for Python 2.7: raw_input("Cartesian Plan: press <enter>")
     rc.execute_plan(plan)
 
-
-    # set 1 inch = 1 pixel
+    # set 1 inch = 1 pixel?
 
     # Box length (m)
-    MOTION_BOX_LENGTH = 0.5
+    MOTION_BOX_LENGTH = np.size(input_image.binary,0) 
+    # set this to length of input image = np.size(input_image.binary,0)
+    MOTION_BOX_HEIGHT = np.size(input_image.binary,1)
+     # set this to height of input image
 
     # width is number of divisions over length
-    WIDTH = 2
+    WIDTH = 6 # if we want to have robot stop at sides of pixel rather than middle. 
 
     for i in range(WIDTH):
         wpose = rc.move_group.get_current_pose().pose
         waypoints = []
         wpose.position.y += MOTION_BOX_LENGTH/WIDTH
+        wpose.position.z += MOTION_BOX_HEIGHT/WIDTH
         waypoints.append(wpose)
         rospy.loginfo(wpose)
         plan, fraction = rc.plan_cartesian_path(waypoints)
@@ -119,7 +149,7 @@ Plan for integrating Arduino with robot:
 
 
 '''
-for Arduino Control:
+for ROS-Arduino Control:
 Install Rosserial Library into Arduino
 Rosserial Arduino Examples: https://github.com/ros-drivers/rosserial/tree/dd76994c67c5e4997ef64837c07afb4eb0d4df27/rosserial_arduino/src/ros_lib/examples
 '''
