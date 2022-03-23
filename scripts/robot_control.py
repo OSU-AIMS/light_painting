@@ -162,5 +162,6 @@ class moveManipulator(object):
         ## Use execute if you would like the robot to follow a plan that has already been computed:
 
         ##TODO: https://answers.ros.org/question/377150/attributeerror-tuple-object-has-no-attribute-serialize-after-attempting-to-execute-a-plan/
+        # No Longer an issue^^
         self.move_group.execute(plan, wait=True)
 

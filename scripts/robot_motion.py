@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from pickle import TRUE
 import rospy
 from robot_control import * 
 import copy
@@ -40,18 +41,70 @@ def main():
     rospy.init_node('light_painting', anonymous=False)
     rospy.loginfo(">> light_painting Node sucessfully created")
 
-    # cv2.imshow("Binary input image",input_image.binary)
-    # cv2.waitKey(1)
+    binary_img = input_image.binary
+
+    ''' Testing how to extract inidividual pixels from binary image
+    print('binary_img[0]=',binary_img[0]) # [[255 255 255] [255 255 255]  [255 255 255]]
+    print('binary_img[1]=',binary_img[1]) # [[255 255 255] [  0   0   0]  [255 255 255]]
+    print('binary_img[2]=',binary_img[2]) # [[255 255 255] [255 255 255]  [255 255 255]]
+    ## ^ show all 9 pixels values as a row vector of 3 elements
+
+    # BELOW: this splits into individual pixels
+    print('binary_img[0,0]=',binary_img[0,0]) # [255 255 255]
+    print('binary_img[0,1]=',binary_img[0,1]) # [255 255 255]
+    print('binary_img[0,2]=',binary_img[0,2]) # [255 255 255]
+
+    print('binary_img[1,0]=',binary_img[1,0]) # [255 255 255]
+    print('binary_img[1,1]=',binary_img[1,1]) # [0 0 0]
+    print('binary_img[1,2]=',binary_img[1,2]) # [255 255 255]
+
+    print('binary_img[2,0]=',binary_img[2,0]) # [255 255 255]
+    print('binary_img[2,1]=',binary_img[2,1]) # [255 255 255]
+    print('binary_img[2,2]=',binary_img[2,2]) # [255 255 255]
+    '''
+
+
+    # print('binary_img[0,0]=',binary_img[0,0]) 
+    # input_image.binary[1] = the above outputs [255 255 255] [  0   0   0] [255 255 255]]
+    # input_image.binary[1,1] =  [0,0,0] ---> black
+    # input_image.binary[0,0] =  [255,255,255] ---> white
+     
+    print('binary_img.item(12)',binary_img.item(12)) # item 12,13,14 is 0 -> meaning that each number = 1 item
+    # so binary image has 24 items. 
+    print('binary_img.item(13)',binary_img.item(13))
+    print('binary_img.item(14)',binary_img.item(14))
+
+    print('any(binary_img[0])',any(binary_img[0]))
+
+
+
+    if binary_img.item(12) == 255:
+        print('LED ON')
+        arduino_led.led_ON()
+        time.sleep(4)
+    else:
+        print('LED OFF')
+        arduino_led.led_OFF()
+        time.sleep(0.5)
+
+    ''' PSEUDOCODE FOR Robot motion to follow image
+    - Robot makes first move; move = 1
+    - if move = 1
+        then go to binary_img[0,0] & compare each item in that pixel using 
+        if binary_img.item()==255, then LED turns on
+    move =+ 1
+    continue on till 9 moves are made for each pixel.
+
+    Current plan is to move robot to arbitrary location in space 
+    & set that to the top left corner of the image. 
+    Then incrementally move through each pixel, 
+    reading the value from the image each time. 
+    '''
 
     # print("Binary: number of rows along horizontal",np.size(input_image.binary,0))
     # # Above and below print statements obtain size of image
     # print("Binary: number of columns along Vertical",np.size(input_image.binary,1))
 
-    # if input_image.binary == 0:
-    #     arduino_led.led_OFF()
-    # if input_image.binary == 255:
-    #     arduino_led.led_ON()
-    #     time.sleep(1)
     
     '''
     # Next steps for After Spring break break: 
@@ -74,6 +127,8 @@ def main():
     - Fix trajectory error: "Validation failed: Trajectory doesn't start at current position."
     - Fix Trajectory error: "Validation failed: Missing velocity data for trajectory pt 0"
     '''
+
+
 
     rc= moveManipulator('mh5l')
     rc.set_vel(0.1)
@@ -104,13 +159,14 @@ def main():
     # set 1 inch = 1 pixel?
 
     # Box length (m)
-    MOTION_BOX_LENGTH = np.size(input_image.binary,0) 
-    # set this to length of input image = np.size(input_image.binary,0)
-    MOTION_BOX_HEIGHT = np.size(input_image.binary,1)
-     # set this to height of input image
+    MOTION_BOX_LENGTH = np.size(binary_img,0) 
+    # set this to length of input image = np.size(input_image.binary,0) = 3
+    MOTION_BOX_HEIGHT = np.size(binary_img,1)
+     # set this to height of input image = 3
 
     # width is number of divisions over length
-    WIDTH = 6 # if we want to have robot stop at sides of pixel rather than middle. 
+    WIDTH = 2 
+    # if we want to have robot stop at sides of pixel rather than middle. Width = 4?
 
     for i in range(WIDTH):
         wpose = rc.move_group.get_current_pose().pose
@@ -139,6 +195,13 @@ def main():
     # arduino_led.control_led(user_input)     # call to turn LED on/off (as of 3/9: currently requires user input)
 
     rc.goto_all_zeros()
+
+    try:
+        rospy.spin()
+    except KeyboardInterrupt:
+        print("Shutting down")
+    cv2.destroyAllWindows()
+
 
 '''
 Plan for integrating Arduino with robot: 
