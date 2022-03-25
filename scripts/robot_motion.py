@@ -159,8 +159,8 @@ def main():
 
     # TOP LEFT (30cm up and 50 cm left from all zeros)
     # Pose axis relative Robot origin axis
-    wpose.position.z += 0.1
-    wpose.position.y += -0.25
+    wpose.position.z += 0.01
+    wpose.position.y += -0.025
     
     waypoints.append(wpose)
 
@@ -189,7 +189,7 @@ def main():
     # if we want to have robot stop at sides of pixel rather than middle. Width = 4?
     
     for i in range(WIDTH):
-        print('Width (number of robot movements left)',WIDTH)
+        # print('Width (number of robot movements left)',9-i)
         wpose = rc.move_group.get_current_pose().pose
         waypoints = []
         wpose.position.y += MOTION_BOX_LENGTH/WIDTH
@@ -200,7 +200,7 @@ def main():
         input(f"Cartesian Plan {i}: press <enter>")
 
         # Turn LED ON/OFF depending upon pixel value
-        if binary_img.item(i-1) == 0: 
+        if binary_img.item(i) == 0: 
             print('i: Robot Movement number:',i)
             print('i: Pixel index number:',i)
             print('binary_img.item(i)=',binary_img.item(i))
@@ -214,7 +214,7 @@ def main():
             print('binary_img.item(i)',binary_img.item(i))
             print('Read Img Pixel: LED ON')
             print(arduino.readline())             #read the serial data and print it as line
-            time.sleep(3)
+            # time.sleep(3)
             arduino_led.led_ON()
             time.sleep(0.5)
             # time.sleep(4)
