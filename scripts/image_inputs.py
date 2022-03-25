@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import cv2
-import rospy
 from os.path import join, abspath, dirname
 
 
@@ -17,7 +16,8 @@ RGB = join(RESOURCES,'RGB')
 #Binary Images:
 white_rim = 'white_rim_3x3.tif'
 
-binary = cv2.imread(join(BINARY,white_rim))
+binary = cv2.imread(join(BINARY,white_rim),0)
+# print('binary',binary)
 # Uncomment for debugging
 # print('join(BINARY,white_rim)',join(BINARY,white_rim))
 # print(binary)

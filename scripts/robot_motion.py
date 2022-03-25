@@ -43,51 +43,64 @@ def main():
 
     binary_img = input_image.binary
 
-    ''' Testing how to extract inidividual pixels from binary image
-    print('binary_img[0]=',binary_img[0]) # [[255 255 255] [255 255 255]  [255 255 255]]
-    print('binary_img[1]=',binary_img[1]) # [[255 255 255] [  0   0   0]  [255 255 255]]
-    print('binary_img[2]=',binary_img[2]) # [[255 255 255] [255 255 255]  [255 255 255]]
+    ''' Testing how to extract individual pixels from binary image
+    print('binary_img[0]=',binary_img[0]) # [[255 255 255]] 1st row (0,1,2)
+    print('binary_img[1]=',binary_img[1]) # [[  0   0   0]] 
+    print('binary_img[2]=',binary_img[2]) # [[255 255 255]]
     ## ^ show all 9 pixels values as a row vector of 3 elements
 
     # BELOW: this splits into individual pixels
-    print('binary_img[0,0]=',binary_img[0,0]) # [255 255 255]
-    print('binary_img[0,1]=',binary_img[0,1]) # [255 255 255]
-    print('binary_img[0,2]=',binary_img[0,2]) # [255 255 255]
+    # Could (use the row,column) method to access pixel values for binary image
+    print('binary_img[0,0]=',binary_img[0,0]) # [255] Pixel 0 (3 items/pixel, starting index at 0)
+    print('binary_img[0,1]=',binary_img[0,1]) # [255] Pixel 1 
+    print('binary_img[0,2]=',binary_img[0,2]) # [255] Pixel 2
 
-    print('binary_img[1,0]=',binary_img[1,0]) # [255 255 255]
-    print('binary_img[1,1]=',binary_img[1,1]) # [0 0 0]
-    print('binary_img[1,2]=',binary_img[1,2]) # [255 255 255]
+    print('binary_img[1,0]=',binary_img[1,0]) # [255] Pixel 3
+    print('binary_img[1,1]=',binary_img[1,1]) # [0]   Pixel 4
+    print('binary_img[1,2]=',binary_img[1,2]) # [255] Pixel 5
 
-    print('binary_img[2,0]=',binary_img[2,0]) # [255 255 255]
-    print('binary_img[2,1]=',binary_img[2,1]) # [255 255 255]
-    print('binary_img[2,2]=',binary_img[2,2]) # [255 255 255]
+    print('binary_img[2,0]=',binary_img[2,0]) # [255] Pixel 6
+    print('binary_img[2,1]=',binary_img[2,1]) # [255] Pixel 7
+    print('binary_img[2,2]=',binary_img[2,2]) # [255] Pixel 8
+
+    # OR Use .item() to extract values from np.ndarray FOR BINARY
+    print('binary_img.item(0)',binary_img.item(0)) # [255] Pixel 0
+    print('binary_img.item(1)',binary_img.item(1)) # [255] Pixel 1
+    print('binary_img.item(2)',binary_img.item(2)) # [255] Pixel 2
+    print('binary_img.item(3)',binary_img.item(3)) # [255] Pixel 3
+    print('binary_img.item(4)',binary_img.item(4)) #   [0] Pixel 4
+    print('binary_img.item(5)',binary_img.item(5)) # [255] Pixel 5
+    print('binary_img.item(6)',binary_img.item(6)) # [255] Pixel 6
+    print('binary_img.item(7)',binary_img.item(7)) # [255] Pixel 7
+    print('binary_img.item(8)',binary_img.item(8)) # [255] Pixel 8
     '''
+    
+    ''' # Section of Code to test the LED & reading img & testing to see if LED turns/off at the right pixel location
+    arduino_led.led_OFF()
+    pixels = np.array([0,1,2,3,4,5,6,7,8])
+    print('Number of pixels',pixels)
+    for i in pixels:
+        if binary_img.item(i) == 255:
+            print('Pixel Number:=',i)
+            print('Pixel Value:=',binary_img.item(i))
+            print('LED ON')
+            print(arduino.readline())             #read the serial data and print it as line
+            # time.sleep(0.5)
+            arduino_led.led_ON()
+            time.sleep(1.5)
+        else:
+            print('Pixel Number:=',i)
+            print('Pixel Value:=',binary_img.item(i))
+            print('LED OFF')
+            print(arduino.readline())             #read the serial data and print it as line
+            # time.sleep(0.5)
+            arduino_led.led_OFF()
+            time.sleep(1.5)
+    '''
+    
 
-
-    # print('binary_img[0,0]=',binary_img[0,0]) 
-    # input_image.binary[1] = the above outputs [255 255 255] [  0   0   0] [255 255 255]]
-    # input_image.binary[1,1] =  [0,0,0] ---> black
-    # input_image.binary[0,0] =  [255,255,255] ---> white
-     
-    print('binary_img.item(12)',binary_img.item(12)) # item 12,13,14 is 0 -> meaning that each number = 1 item
-    # so binary image has 24 items. 
-    print('binary_img.item(13)',binary_img.item(13))
-    print('binary_img.item(14)',binary_img.item(14))
-
-    print('any(binary_img[0])',any(binary_img[0]))
-
-
-
-    if binary_img.item(12) == 255:
-        print('LED ON')
-        arduino_led.led_ON()
-        time.sleep(4)
-    else:
-        print('LED OFF')
-        arduino_led.led_OFF()
-        time.sleep(0.5)
-
-    ''' PSEUDOCODE FOR Robot motion to follow image
+    ''' 
+    PSEUDOCODE FOR Robot motion to follow image
     - Robot makes first move; move = 1
     - if move = 1
         then go to binary_img[0,0] & compare each item in that pixel using 
@@ -101,9 +114,9 @@ def main():
     reading the value from the image each time. 
     '''
 
-    # print("Binary: number of rows along horizontal",np.size(input_image.binary,0))
+    print("Binary: number of rows along horizontal",np.size(input_image.binary,0))
     # # Above and below print statements obtain size of image
-    # print("Binary: number of columns along Vertical",np.size(input_image.binary,1))
+    print("Binary: number of columns along Vertical",np.size(input_image.binary,1))
 
     
     '''
@@ -129,7 +142,8 @@ def main():
     '''
 
 
-
+    # Commented out below to the end to test image reading and LED
+    
     rc= moveManipulator('mh5l')
     rc.set_vel(0.1)
     rc.set_accel(0.1)
@@ -140,6 +154,8 @@ def main():
     scale = 1
 
     wpose = rc.move_group.get_current_pose().pose
+
+    waypoints.append(wpose)
 
     # TOP LEFT (30cm up and 50 cm left from all zeros)
     # Pose axis relative Robot origin axis
@@ -156,6 +172,7 @@ def main():
     # for Python 2.7: raw_input("Cartesian Plan: press <enter>")
     rc.execute_plan(plan)
 
+
     # set 1 inch = 1 pixel?
 
     # Box length (m)
@@ -165,10 +182,14 @@ def main():
      # set this to height of input image = 3
 
     # width is number of divisions over length
-    WIDTH = 2 
-    # if we want to have robot stop at sides of pixel rather than middle. Width = 4?
+    WIDTH = MOTION_BOX_HEIGHT*MOTION_BOX_LENGTH # to get size of the image  & movements for each pixel
+    # In this case, 9 pixels hopefully
+    print('Width (number of movements robot will do)',WIDTH)
 
+    # if we want to have robot stop at sides of pixel rather than middle. Width = 4?
+    
     for i in range(WIDTH):
+        print('Width (number of robot movements left)',WIDTH)
         wpose = rc.move_group.get_current_pose().pose
         waypoints = []
         wpose.position.y += MOTION_BOX_LENGTH/WIDTH
@@ -178,22 +199,39 @@ def main():
         plan, fraction = rc.plan_cartesian_path(waypoints)
         input(f"Cartesian Plan {i}: press <enter>")
 
-        print(arduino.readline())             #read the serial data and print it as line
-        arduino_led.led_ON()
-        time.sleep(1)
-        arduino_led.led_OFF()
-        time.sleep(0.5)
+        # Turn LED ON/OFF depending upon pixel value
+        if binary_img.item(i-1) == 0: 
+            print('i: Robot Movement number:',i)
+            print('i: Pixel index number:',i)
+            print('binary_img.item(i)=',binary_img.item(i))
+            print('Read Img Pixel: LED OFF')
+            print(arduino.readline())             #read the serial data and print it as line
+            arduino_led.led_OFF()
+            time.sleep(0.5)
+        else:
+            print('i: Robot Movement number:',i)
+            print('i: Pixel index number=',i)
+            print('binary_img.item(i)',binary_img.item(i))
+            print('Read Img Pixel: LED ON')
+            print(arduino.readline())             #read the serial data and print it as line
+            time.sleep(3)
+            arduino_led.led_ON()
+            time.sleep(0.5)
+            # time.sleep(4)
+            # arduino_led.led_OFF()
+
         rc.execute_plan(plan)
 # Sequentially read: so how can we turn the light on & off while the robot is moving in case there is a gradient?
 
     input("All zeros: press <enter>")
+    arduino_led.led_OFF()
     # for Python 2.7: raw_input("All zeros: press <enter>")
 
 # Uncomment below to manually control LED through button input
     # print("Enter 1 to ON LED and 0 to OFF LED")
     # user_input = input()                  #waits until user enters data
     # arduino_led.control_led(user_input)     # call to turn LED on/off (as of 3/9: currently requires user input)
-
+#####
     rc.goto_all_zeros()
 
     try:
@@ -201,7 +239,7 @@ def main():
     except KeyboardInterrupt:
         print("Shutting down")
     cv2.destroyAllWindows()
-
+    
 
 '''
 Plan for integrating Arduino with robot: 
