@@ -159,8 +159,15 @@ def main():
 
     # TOP LEFT (30cm up and 50 cm left from all zeros)
     # Pose axis relative Robot origin axis
-    wpose.position.z += 0.01
-    wpose.position.y += -0.025
+    
+    # Starting positions for robot
+    z_start = 0.4 # m
+    y_start = -0.25 # m
+
+    wpose.position.z = z_start 
+    wpose.position.y = y_start
+    # wpose.position.z += 0.01
+    # wpose.position.y += -0.025
     
     waypoints.append(wpose)
 
@@ -177,9 +184,11 @@ def main():
 
     # Box length (m)
     MOTION_BOX_LENGTH = np.size(binary_img,0) 
+    # print('Length of image',MOTION_BOX_LENGTH) # =3
     # set this to length of input image = np.size(input_image.binary,0) = 3
     MOTION_BOX_HEIGHT = np.size(binary_img,1)
      # set this to height of input image = 3
+    # print('Height of image',MOTION_BOX_HEIGHT) #=3
 
     # width is number of divisions over length
     WIDTH = MOTION_BOX_HEIGHT*MOTION_BOX_LENGTH # to get size of the image  & movements for each pixel
@@ -192,39 +201,68 @@ def main():
         # print('Width (number of robot movements left)',9-i)
         wpose = rc.move_group.get_current_pose().pose
         waypoints = []
-        wpose.position.y += MOTION_BOX_LENGTH/WIDTH
-        wpose.position.z += MOTION_BOX_HEIGHT/WIDTH
-        waypoints.append(wpose)
-        rospy.loginfo(wpose)
+        if i == MOTION_BOX_HEIGHT: 
+            print('Reached end of row, starting next row at index: ',i)
+            # 3 is starting next row of pixels. 
+            #So when robot finish position 2, it should go back to starting point & move down to start position 3
+            # 0 1 2: once robot reaches 2, it needs to return to 3 basically reset and go down
+            # 3 4 5
+            wpose.position.z -= z_start/WIDTH
+            wpose.position.y = y_start # same y-axis starting value
+            waypoints.append(wpose)
+        elif i == MOTION_BOX_HEIGHT*(MOTION_BOX_HEIGHT-1):
+            print('Reached end of row, starting next row at index: ',i)
+            # 3 is starting next row of pixels. 
+            #So when robot finish position 2, it should go back to starting point & move down to start position 3
+            # 0 1 2: once robot reaches 2, it needs to return to 3 basically reset and go down
+            # 3 4 5
+            wpose.position.z -= z_start/WIDTH
+            wpose.position.y = y_start # same y-axis starting value
+            waypoints.append(wpose)
+
+        else: # else keep incrementally moving horizontally across y-axis
+            wpose.position.y += y_start/WIDTH # Previously, MOTION_BOX_LENGTH/WIDTH = 3/9=1/3 m big jump
+            waypoints.append(wpose)
+        # need to set bounds on how far it should go before starting the next row of pixels
+        # wpose.position.z += MOTION_BOX_HEIGHT/WIDTH
+        # waypoints.append(wpose)
+        # rospy.loginfo(wpose)
         plan, fraction = rc.plan_cartesian_path(waypoints)
-        input(f"Cartesian Plan {i}: press <enter>")
+        
+        input(f"Cartesian Plan {i}: press <enter>") # uncomment this line if you want robot to run automatically
 
         # Turn LED ON/OFF depending upon pixel value
+        rc.execute_plan(plan)
+
         if binary_img.item(i) == 0: 
             print('i: Robot Movement number:',i)
             print('i: Pixel index number:',i)
             print('binary_img.item(i)=',binary_img.item(i))
-            print('Read Img Pixel: LED OFF')
-            print(arduino.readline())             #read the serial data and print it as line
+            # print(arduino.readline())             #read the serial data and print it as line
             arduino_led.led_OFF()
             time.sleep(0.5)
         else:
             print('i: Robot Movement number:',i)
             print('i: Pixel index number=',i)
             print('binary_img.item(i)',binary_img.item(i))
-            print('Read Img Pixel: LED ON')
-            print(arduino.readline())             #read the serial data and print it as line
+            # print(arduino.readline())             #read the serial data and print it as line
             # time.sleep(3)
             arduino_led.led_ON()
             time.sleep(0.5)
+            arduino_led.led_OFF() # Turns off after every movement
+
+            # if binary_img.item(i) == 2 or 5 or 8: 
+            #     # item 2,5,8 are the edge pixels. 
+            #     # since we are going sequentially 0>1>2>3. 
+            # Once light reaches edge pixel, it will move across the image
+            #     arduino_led.led_OFF()
+
             # time.sleep(4)
             # arduino_led.led_OFF()
 
-        rc.execute_plan(plan)
-# Sequentially read: so how can we turn the light on & off while the robot is moving in case there is a gradient?
-
-    input("All zeros: press <enter>")
-    arduino_led.led_OFF()
+        
+# Currently Sequentially read: so how can we turn the light on & off while the robot is moving in case there is a gradient?
+    input("All zeros: press <enter>")    
     # for Python 2.7: raw_input("All zeros: press <enter>")
 
 # Uncomment below to manually control LED through button input

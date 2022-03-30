@@ -16,9 +16,11 @@ arduino = serial.Serial(port='/dev/ttyACM0',baudrate=9600,timeout=0.1)
 
 def led_OFF(): # turn LED off automatically
     arduino.write(b'0')
+    print('LED Is now OFF')
 
 def led_ON(): # turns LED on automatically
     arduino.write(b'1')
+    print('LED Is now ON')
 
 
 def control_led(input_data):
