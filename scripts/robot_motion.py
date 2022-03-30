@@ -153,83 +153,90 @@ def main():
     waypoints = []
     scale = 1
 
-    wpose = rc.move_group.get_current_pose().pose
+    start_pose = rc.move_group.get_current_pose().pose
 
-    waypoints.append(wpose)
+    # waypoints.append(wpose)
 
-    # TOP LEFT (30cm up and 50 cm left from all zeros)
     # Pose axis relative Robot origin axis
-    
-    # Starting positions for robot
-    z_start = 0.4 # m
-    y_start = -0.25 # m
 
-    wpose.position.z = z_start 
-    wpose.position.y = y_start
+    # MOTION_BOX_WIDTH/LENGTH is the static desired dimensions of the light painting
+    # starting with small movements:
+    #  10cm x 10cm box - 1 success
+    # 20cm x 20cm - 1 failed, 1 ~~ success
+
+
+    MOTION_BOX_WIDTH =  .1
+    MOTION_BOX_HEIGHT = .1
+    # Starting positions for robot
+    z_start = 0.8 # m
+    y_start = -MOTION_BOX_WIDTH/2 # m
+
+    start_pose.position.z = z_start 
+    start_pose.position.y = y_start
+
+    rc.goto_Pose(start_pose)
     # wpose.position.z += 0.01
     # wpose.position.y += -0.025
     
-    waypoints.append(wpose)
+    # waypoints.append(wpose)
 
-    plan, fraction = rc.plan_cartesian_path(waypoints)
+    # plan, fraction = rc.plan_cartesian_path(waypoints)
     # Added fraction because of this Github issue: 
     # https://github.com/ros-planning/moveit/issues/709
 
-    input("Cartesian Plan: press <enter>")
+    # input("Cartesian Plan: press <enter>")
     # for Python 2.7: raw_input("Cartesian Plan: press <enter>")
-    rc.execute_plan(plan)
+    # rc.execute_plan(plan)
 
 
     # set 1 inch = 1 pixel?
 
     # Box length (m)
-    MOTION_BOX_LENGTH = np.size(binary_img,0) 
-    # print('Length of image',MOTION_BOX_LENGTH) # =3
+    IMAGE_WIDTH = np.size(binary_img,0) 
+    # print('Length of image',IMAGE_WIDTH # =3
     # set this to length of input image = np.size(input_image.binary,0) = 3
-    MOTION_BOX_HEIGHT = np.size(binary_img,1)
+    IMAGE_HEIGHT = np.size(binary_img,1)
      # set this to height of input image = 3
-    # print('Height of image',MOTION_BOX_HEIGHT) #=3
-
-    # width is number of divisions over length
-    WIDTH = MOTION_BOX_HEIGHT*MOTION_BOX_LENGTH # to get size of the image  & movements for each pixel
-    # In this case, 9 pixels hopefully
-    print('Width (number of movements robot will do)',WIDTH)
+    # print('Height of image',IMAGE_HEIGHT) #=3
+    PIXEL_COUNT = IMAGE_WIDTH*IMAGE_HEIGHT
+  
 
     # if we want to have robot stop at sides of pixel rather than middle. Width = 4?
     
-    for i in range(WIDTH):
+    for i in range(PIXEL_COUNT):
         # print('Width (number of robot movements left)',9-i)
         wpose = rc.move_group.get_current_pose().pose
         waypoints = []
-        if i == MOTION_BOX_HEIGHT: 
+        # waypoints.append(wpose)
+        if i == IMAGE_WIDTH: 
             print('Reached end of row, starting next row at index: ',i)
             # 3 is starting next row of pixels. 
             #So when robot finish position 2, it should go back to starting point & move down to start position 3
             # 0 1 2: once robot reaches 2, it needs to return to 3 basically reset and go down
             # 3 4 5
-            wpose.position.z -= z_start/WIDTH
+            wpose.position.z -= MOTION_BOX_HEIGHT/IMAGE_HEIGHT
             wpose.position.y = y_start # same y-axis starting value
-            waypoints.append(wpose)
-        elif i == MOTION_BOX_HEIGHT*(MOTION_BOX_HEIGHT-1):
+            waypoints.append(copy.deepcopy(wpose))
+        elif i == IMAGE_WIDTH*(IMAGE_HEIGHT-1):
             print('Reached end of row, starting next row at index: ',i)
             # 3 is starting next row of pixels. 
             #So when robot finish position 2, it should go back to starting point & move down to start position 3
             # 0 1 2: once robot reaches 2, it needs to return to 3 basically reset and go down
             # 3 4 5
-            wpose.position.z -= z_start/WIDTH
+            wpose.position.z -= MOTION_BOX_HEIGHT/IMAGE_HEIGHT
             wpose.position.y = y_start # same y-axis starting value
-            waypoints.append(wpose)
+            waypoints.append(copy.deepcopy(wpose))
 
         else: # else keep incrementally moving horizontally across y-axis
-            wpose.position.y += y_start/WIDTH # Previously, MOTION_BOX_LENGTH/WIDTH = 3/9=1/3 m big jump
-            waypoints.append(wpose)
+            wpose.position.y += MOTION_BOX_WIDTH/IMAGE_WIDTH # Previously, MOTION_BOX_LENGTH/WIDTH = 3/9=1/3 m big jump
+            waypoints.append(copy.deepcopy(wpose))
         # need to set bounds on how far it should go before starting the next row of pixels
         # wpose.position.z += MOTION_BOX_HEIGHT/WIDTH
         # waypoints.append(wpose)
         # rospy.loginfo(wpose)
         plan, fraction = rc.plan_cartesian_path(waypoints)
         
-        input(f"Cartesian Plan {i}: press <enter>") # uncomment this line if you want robot to run automatically
+        # input(f"Cartesian Plan {i}: press <enter>") # uncomment this line if you want robot to run automatically
 
         # Turn LED ON/OFF depending upon pixel value
         rc.execute_plan(plan)

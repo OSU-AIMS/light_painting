@@ -155,7 +155,7 @@ class moveManipulator(object):
         
         # For reducing robot speed: https://answers.ros.org/question/376226/how-to-decrease-the-speed-of-my-robot/
         # As of 3/21: seems to work.
-        rospy.loginfo(plan)
+        # rospy.loginfo(plan)
         return plan, fraction
     def execute_plan(self, plan):
         ## Execute a Plan
@@ -164,4 +164,5 @@ class moveManipulator(object):
         ##TODO: https://answers.ros.org/question/377150/attributeerror-tuple-object-has-no-attribute-serialize-after-attempting-to-execute-a-plan/
         # No Longer an issue^^
         self.move_group.execute(plan, wait=True)
+        self.move_group.stop()
 
