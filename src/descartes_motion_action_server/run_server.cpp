@@ -82,6 +82,9 @@ int main(int argc, char** argv)
   model->getFK(current_state_ptr->position, pattern_origin);
 
 
+  // std::cout << current_state_ptr->position << "\n";
+  std::cout << pattern_origin.translation() << "\n";
+
 
   // Get goal pose
   // TODO: get from action server
@@ -94,6 +97,14 @@ int main(int argc, char** argv)
 
   // Generate path plan starting from current pose
   std::vector<descartes_core::TrajectoryPtPtr> points = makeStraightPath(pattern_origin, pose_goal);
+
+  // Debug
+  std::cout << "\n\nFinal Path Plan:\n\n";
+  for (const auto& pt : points)
+  {
+    std::cout << pt << "\n\n"; // this doesn't work, but need to inspect the points generated
+  }
+
 
 
   // Descartes: Setup DensePlanner
@@ -185,6 +196,10 @@ std::vector<descartes_core::TrajectoryPtPtr> makeStraightPath(Eigen::Isometry3d 
   const static double num_steps = 5;
   const static double time_between_points = 0.01;
 
+  // Debug
+  std::cout << "Increment: ";
+  std::cout << 1.0/num_steps << "\n";
+
   // Generate straight line path
   EigenSTL::vector_Isometry3d pattern_poses;
   for (double i = 0.0; i < 1.0; i = i + 1.0/num_steps)
@@ -192,6 +207,13 @@ std::vector<descartes_core::TrajectoryPtPtr> makeStraightPath(Eigen::Isometry3d 
     Eigen::Isometry3d pose = Eigen::Isometry3d::Identity();
     pose.translation() = pattern_start.translation() + pattern_diff.translation() * i;
     pattern_poses.push_back(pose);
+
+
+    // Debug
+    std::cout << "i: " << i;
+    std::cout << "\nTranslation: \n";
+    std::cout << pose.translation();
+    std::cout << "\n";
   }
 
   // Ensure first trajectory point is at exact start
