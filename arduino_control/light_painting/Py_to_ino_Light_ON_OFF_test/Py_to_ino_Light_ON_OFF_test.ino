@@ -5,6 +5,8 @@
 #define BUTTON 8
 #define LED 13
 
+#define LED_red 12
+
 int value=0;
 // ros::NodeHandle node_handle;
 
@@ -31,6 +33,8 @@ void setup() {
   Serial.begin(9600);
 //  // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(LED_red,OUTPUT);
+  digitalWrite(LED_red,HIGH);
   digitalWrite(LED_BUILTIN,LOW);
   Serial.println("Connection Established...");
 }

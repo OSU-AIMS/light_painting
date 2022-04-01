@@ -14,9 +14,15 @@ GRAYSCALE = join(RESOURCES,'grayscale')
 RGB = join(RESOURCES,'RGB') 
 
 #Binary Images:
-white_rim = 'white_rim_3x3.tif'
+white_rim4x3 = 'white_rim_4x3.tif'
+blockO = 'block-O_10x10.tif'
+aims = 'AIMS_20x5.tif'
 
-binary = cv2.imread(join(BINARY,white_rim),0)
+# binary = cv2.imread(join(BINARY,white_rim4x3),0)
+# binary = cv2.imread(join(BINARY,blockO),0)
+binary = cv2.imread(join(BINARY,aims),0)
+
+
 # print('binary',binary)
 # Uncomment for debugging
 # print('join(BINARY,white_rim)',join(BINARY,white_rim))
