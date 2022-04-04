@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-from pickle import TRUE
-from tkinter.tix import IMAGE
-# import rospy
+import rospy
 from robot_control import * 
 import copy
 from geometry_msgs.msg import Pose
@@ -38,7 +36,7 @@ import py_to_ino_RGB_LED_test as RGB_led
 import image_inputs as input_image
 
 def RGB_values(image):
-    
+
     
 
 

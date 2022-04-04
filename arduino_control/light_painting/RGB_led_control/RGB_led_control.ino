@@ -1,4 +1,6 @@
 #include <ros.h>
+#include <std_msgs/String.h>
+#include <std_msgs/UInt16.h>
 
 int red_light_pin= 11;
 int green_light_pin = 10;
@@ -7,6 +9,17 @@ int blue_light_pin = 9;
 int red = 0;
 int blue = 0;
 int green = 0;
+
+int value = 0;
+
+void subscriberCallback(const std_msgs::UInt16& rgb_msg)
+{
+  value = rgb_msg;
+//  red = rgb_msg.data(0)
+//  ggreen = rgb_msg.data(1)
+//  blue = rgb_msg.data(2)
+  RGB_color(red,green,blue);
+}
 
 void setup() {
   pinMode(red_light_pin, OUTPUT);
@@ -19,8 +32,9 @@ void loop() {
     red = Serial.read();
     green = Serial.read();
     blue = Serial.read();
+    RGB_color(red,green,blue);
   }
-  RGB_color(red,green,blue);
+  
 
 }
 //  RGB_color(255, 0, 0); // Red

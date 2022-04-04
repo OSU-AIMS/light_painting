@@ -7,8 +7,13 @@
 import serial
 # Refer to pyserial docs: https://pyserial.readthedocs.io/en/latest/pyserial.html
 # python3 -m pip install pyserial
-import time
+# import time
 import numpy as np
+import rospy
+
+
+# ROS Data Types
+from std_msgs.msg import ByteMultiArray
 
 # Custom Script
 import image_inputs as input_image
@@ -25,8 +30,9 @@ def RGB(red,green,blue):
     print('RGB should be on')
 
 
-def main():    
-    rgb_img = input_image.RGB
+def RGB_values(rgb_img):    
+    # rgb_img = input_image.RGB
+    ''' Testing reading values from RGB
     # print('Size of RGB: ',rgb_img.size)
     # print('rgb_img[0,0] pixel 1 value:',rgb_img[0,0])
     # print('rgb_img.item(0) pixel 1 value:',rgb_img.item(0)) # gets only the 1st value
@@ -36,43 +42,60 @@ def main():
     # print('Red value of pixel 4:',red)
     # print('Green value of Pixel 4:',green)
     # print('Blue value of pixel 4:',blue) 
-
+    '''
 
     rows = np.array([0,1,2])
     cols = np.array([0,1,2])
     print('Number of pixels',len(rows)*len(cols))
     for i in rows:
         for j in cols:
-            r,g,b = rgb_img[i,j] # stores each slice value into r,g,b (order specific!) Check in image_inputs.py to make sure you converted from BGR to RGB (thakns openCV)
-            RGB(r,g,b)
-    #         # if binary_img.item(i) == 255:
-            #     print('Pixel Number:=',i)
-            #     print('Pixel Value:=',binary_img.item(i))
-            #     print('LED ON')
-            #     print(arduino.readline())             #read the serial data and print it as line
-            #     # time.sleep(0.5)
-            #     arduino_led.led_ON()
-            #     time.sleep(1.5)
-            # else:
-            #     print('Pixel Number:=',i)
-            #     print('Pixel Value:=',binary_img.item(i))
-            #     print('LED OFF')
-            #     print(arduino.readline())             #read the serial data and print it as line
-            #     # time.sleep(0.5)
-            #     arduino_led.led_OFF()
-            #     time.sleep(1.5)
+            r,g,b = rgb_img[i,j] # stores each slice value into r,g,b (order specific!)
+            # Check in image_inputs.py to make sure you converted from BGR to RGB (thakns openCV)
+            return r,g,b
 
 
+class RGB_publisher():
+    def __init__(self,rgb_values):
+        self.rgb_values = rgb_values
+    def runner(self,data):
+        try:
+            rgb_values = [0,0,0]
+            rgb_img = input_image.rgb
 
-    # print(arduino.readline())             #read the serial data and print it as line
-    # print("RGB LED")
-    # print("Enter value for Red:")
-    # input_red = input()                  #waits until user enters data
-    # print("Enter value for Green:")
-    # input_green = input()
-    # print("Enter value for Blue:")
-    # input_blue = input()
-    # RGB(input_red,input_green,input_blue)
+
+            r,g,b = RGB_values(rgb_img)
+            data = (r,g,b)
+
+            rgb_values.data = list(bytearray(data))
+
+            self.rgb_values.publish(rgb_values)
+            rospy.loginfo(rgb_values)
+
+
+        except rospy.ROSInterruptException:
+            exit()
+        except KeyboardInterrupt:
+            exit()
+
+
+def main():
+    rospy.init_node('RGB values')
+    rospy.loginfo(">>RGB Values node successfully created")
+    
+
+    # Setup publishers
+    pub_rgb_values = rospy.Publisher("RGB_values",ByteMultiArray, queue_size=20)
+    rgb_callback = RGB_publisher(pub_rgb_values)
+
+    try:
+        rospy.spin()
+    except KeyboardInterrupt:
+        print("Shutting down")
+
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except rospy.ROSInterruptException:
+        print("program interrupted before completion", file=sys.stderr)
+    
