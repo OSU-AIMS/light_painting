@@ -34,7 +34,7 @@ void setup() {
 //  // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(LED_red,OUTPUT);
-  digitalWrite(LED_red,HIGH);
+  digitalWrite(LED_red,HIGH); // for keeping RED LED ON
   digitalWrite(LED_BUILTIN,LOW);
   Serial.println("Connection Established...");
 }

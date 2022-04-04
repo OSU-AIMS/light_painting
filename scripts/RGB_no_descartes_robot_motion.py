@@ -34,17 +34,20 @@ If you solely used the Arduino script, you would need to have a user input to tu
 '''
 
 # Custom Scripts
-import py_to_ino_LIGHT_ON_OFF_test as arduino_led
+import py_to_ino_RGB_LED_test as RGB_led
 import image_inputs as input_image
+
+def RGB_values(image):
+    
+    
+
+
 
 
 def main():
-    rospy.init_node('light_painting', anonymous=False)
-    rospy.loginfo(">> light_painting Node sucessfully created")
+ 
 
-    binary_img = input_image.binary
-
-    ''' Testing how to extract individual pixels from binary image
+    ''' Testing how to extract individual pixels from RGB image
     print('binary_img[0]=',binary_img[0]) # [[255 255 255]] 1st row (0,1,2)
     print('binary_img[1]=',binary_img[1]) # [[  0   0   0]] 
     print('binary_img[2]=',binary_img[2]) # [[255 255 255]]
@@ -143,134 +146,136 @@ def main():
 
     # Commented out below to the end to test image reading and LED
     
-    rc= moveManipulator('mh5l')
-    rc.set_vel(0.1)
-    rc.set_accel(0.1)
+    # rc= moveManipulator('mh5l')
+    # rc.set_vel(0.1)
+    # rc.set_accel(0.1)
 
-    rc.goto_all_zeros() 
+    # rc.goto_all_zeros() 
 
-    waypoints = []
-    scale = 1
+    # waypoints = []
+    # scale = 1
 
-    start_pose = rc.move_group.get_current_pose().pose
+    # start_pose = rc.move_group.get_current_pose().pose
 
-    # waypoints.append(wpose)
+    # # waypoints.append(wpose)
 
-    # Pose axis relative Robot origin axis
+    # # Pose axis relative Robot origin axis
 
-    # MOTION_BOX_WIDTH/LENGTH is the static desired dimensions of the light painting
-    # starting with small movements:
-    #  10cm x 10cm box - 1 success
-    # 20cm x 20cm - 1 failed, 1 ~~ success
+    # # MOTION_BOX_WIDTH/LENGTH is the static desired dimensions of the light painting
+    # # starting with small movements:
+    # #  10cm x 10cm box - 1 success
+    # # 20cm x 20cm - 1 failed, 1 ~~ success
 
 
-    MOTION_BOX_WIDTH =  .1
-    MOTION_BOX_HEIGHT = .1
-    # Starting positions for robot
-    z_start = 1 # m
-    y_start = -MOTION_BOX_WIDTH/2 # m
+    # MOTION_BOX_WIDTH =  .1
+    # MOTION_BOX_HEIGHT = .1
+    # # Starting positions for robot
+    # z_start = 1 # m
+    # y_start = -MOTION_BOX_WIDTH/2 # m
 
-    start_pose.position.z = z_start 
-    start_pose.position.y = y_start
+    # start_pose.position.z = z_start 
+    # start_pose.position.y = y_start
 
-    rc.goto_Pose(start_pose)
-    # wpose.position.z += 0.01
-    # wpose.position.y += -0.025
+    # rc.goto_Pose(start_pose)
+    # # wpose.position.z += 0.01
+    # # wpose.position.y += -0.025
     
-    # waypoints.append(wpose)
+    # # waypoints.append(wpose)
 
-    # plan, fraction = rc.plan_cartesian_path(waypoints)
-    # Added fraction because of this Github issue: 
-    # https://github.com/ros-planning/moveit/issues/709
+    # # plan, fraction = rc.plan_cartesian_path(waypoints)
+    # # Added fraction because of this Github issue: 
+    # # https://github.com/ros-planning/moveit/issues/709
 
-    # input("Cartesian Plan: press <enter>")
-    # for Python 2.7: raw_input("Cartesian Plan: press <enter>")
-    # rc.execute_plan(plan)
+    # # input("Cartesian Plan: press <enter>")
+    # # for Python 2.7: raw_input("Cartesian Plan: press <enter>")
+    # # rc.execute_plan(plan)
 
 
-    # set 1 inch = 1 pixel?
+    # # set 1 inch = 1 pixel?
 
-    # Box length (m)
-    IMAGE_HEIGHT = np.size(binary_img,0) 
-    print('height of image',IMAGE_HEIGHT) # =3
-    # set this to length of input image = np.size(input_image.binary,0) = 3
-    IMAGE_WIDTH = np.size(binary_img,1)
-     # set this to height of input image = 3
-    print('Width of image',IMAGE_WIDTH) #=3
-    PIXEL_COUNT = IMAGE_WIDTH*IMAGE_HEIGHT
+    # # Box length (m)
+    # IMAGE_HEIGHT = np.size(binary_img,0) 
+    # print('height of image',IMAGE_HEIGHT) # =3
+    # # set this to length of input image = np.size(input_image.binary,0) = 3
+    # IMAGE_WIDTH = np.size(binary_img,1)
+    #  # set this to height of input image = 3
+    # print('Width of image',IMAGE_WIDTH) #=3
+    # PIXEL_COUNT = IMAGE_WIDTH*IMAGE_HEIGHT
   
 
-    # if we want to have robot stop at sides of pixel rather than middle. Width = 4?
+    # # if we want to have robot stop at sides of pixel rather than middle. Width = 4?
     
-    for i in range(PIXEL_COUNT):
-        # print('Width (number of robot movements left)',9-i)
-        wpose = rc.move_group.get_current_pose().pose
-        waypoints = []
+    # for i in range(PIXEL_COUNT):
+    #     # print('Width (number of robot movements left)',9-i)
+    #     wpose = rc.move_group.get_current_pose().pose
+    #     waypoints = []
 
-        # waypoints.append(wpose)
+    #     # waypoints.append(wpose)
         
-                        # Turn LED ON/OFF depending upon pixel value
-        if binary_img.item(i) == 0: 
-            print('i: Robot Movement number:',i)
-            print('i: Pixel index number:',i)
-            print('binary_img.item(i)=',binary_img.item(i))
-            # print(arduino.readline())             #read the serial data and print it as line
-            arduino_led.led_OFF()
-            time.sleep(0.5)
-        else:
-            print('i: Robot Movement number:',i)
-            print('i: Pixel index number=',i)
-            print('binary_img.item(i)',binary_img.item(i))
-            # print(arduino.readline())             #read the serial data and print it as line
-            # time.sleep(3)
-            arduino_led.led_ON() 
-            arduino_led.led_OFF() # Turns off after every movement - remove this for continuous LED ON
-            time.sleep(0.5)
+    #     # Turn RGB LED ON/OFF depending upon pixel value
+    #     # if binary_img.item(i) == 0: 
+    #     #     print('i: Robot Movement number:',i)
+    #     #     print('i: Pixel index number:',i)
+    #     #     print('binary_img.item(i)=',binary_img.item(i))
+    #     #     # print(arduino.readline())             #read the serial data and print it as line
+    #     #     arduino_led.led_OFF()
+    #     #     time.sleep(0.5)
+    #     # else:
+    #     #     print('i: Robot Movement number:',i)
+    #     #     print('i: Pixel index number=',i)
+    #     #     print('binary_img.item(i)',binary_img.item(i))
+    #     #     # print(arduino.readline())             #read the serial data and print it as line
+    #     #     # time.sleep(3)
+    #     #     arduino_led.led_ON() 
+    #     #     arduino_led.led_OFF() # Turns off after every movement - remove this for continuous LED ON
+    #     #     time.sleep(0.5)
 
-        if i == 0:
-            # waypoints.append(copy.deepcopy(wpose))
-            waypoints = []
-            print('i=',i)
-            print('wpose.position.y=',wpose.position.y)
-        elif i % IMAGE_WIDTH == 0: # if i is a multiple of the image width, that means it should move to the next row
-            print('Reached end of row, starting next row at index: ',i)
-            # 3 is starting next row of pixels. 
-            #So when robot finish position 2, it should go back to starting point & move down to start position 3
-            # 0 1 2: once robot reaches 2, it needs to return to 3 basically reset and go down
-            # 3 4 5
-            wpose.position.z -= MOTION_BOX_HEIGHT/IMAGE_HEIGHT
-            wpose.position.y = y_start # same y-axis starting value
-            waypoints.append(copy.deepcopy(wpose))
-            print('i=',i)
-            print('wpose.position.y=',wpose.position.y)
+    #     if i == 0:
+    #         # waypoints.append(copy.deepcopy(wpose))
+    #         waypoints = []
+    #         print('i=',i)
+    #         print('wpose.position.y=',wpose.position.y)
+    #     elif i % IMAGE_WIDTH == 0: # if i is a multiple of the image width, that means it should move to the next row
+    #         print('Reached end of row, starting next row at index: ',i)
+    #         # 3 is starting next row of pixels. 
+    #         #So when robot finish position 2, it should go back to starting point & move down to start position 3
+    #         # 0 1 2: once robot reaches 2, it needs to return to 3 basically reset and go down
+    #         # 3 4 5
+    #         wpose.position.z -= MOTION_BOX_HEIGHT/IMAGE_HEIGHT
+    #         wpose.position.y = y_start # same y-axis starting value
+    #         waypoints.append(copy.deepcopy(wpose))
+    #         print('i=',i)
+    #         print('wpose.position.y=',wpose.position.y)
 
-        # elif i == IMAGE_WIDTH*(IMAGE_HEIGHT-1):
-        #     print('Reached end of row, starting next row at index: ',i)
-        #     # 3 is starting next row of pixels. 
-        #     #So when robot finish position 2, it should go back to starting point & move down to start position 3
-        #     # 0 1 2: once robot reaches 2, it needs to return to 3 basically reset and go down
-        #     # 3 4 5
-        #     wpose.position.z -= MOTION_BOX_HEIGHT/IMAGE_HEIGHT
-        #     wpose.position.y = y_start # same y-axis starting value
-        #     waypoints.append(copy.deepcopy(wpose))
-        #     print('i=',i)
-        #     print('wpose.position.y=',wpose.position.y)
+    #     # elif i == IMAGE_WIDTH*(IMAGE_HEIGHT-1):
+    #     #     print('Reached end of row, starting next row at index: ',i)
+    #     #     # 3 is starting next row of pixels. 
+    #     #     #So when robot finish position 2, it should go back to starting point & move down to start position 3
+    #     #     # 0 1 2: once robot reaches 2, it needs to return to 3 basically reset and go down
+    #     #     # 3 4 5
+    #     #     wpose.position.z -= MOTION_BOX_HEIGHT/IMAGE_HEIGHT
+    #     #     wpose.position.y = y_start # same y-axis starting value
+    #     #     waypoints.append(copy.deepcopy(wpose))
+    #     #     print('i=',i)
+    #     #     print('wpose.position.y=',wpose.position.y)
 
-        else: # else keep incrementally moving horizontally across y-axis
-                wpose.position.y += MOTION_BOX_WIDTH/IMAGE_WIDTH # Previously, MOTION_BOX_LENGTH/WIDTH = 3/9=1/3 m big jump
-                waypoints.append(copy.deepcopy(wpose))
-                print('i=',i)
-                print('wpose.position.y=',wpose.position.y)
-        # need to set bounds on how far it should go before starting the next row of pixels
-        # wpose.position.z += MOTION_BOX_HEIGHT/WIDTH
-        # waypoints.append(wpose)
-        # rospy.loginfo(wpose)
-        plan, fraction = rc.plan_cartesian_path(waypoints)
+    #     else: # else keep incrementally moving horizontally across y-axis
+    #             wpose.position.y += MOTION_BOX_WIDTH/IMAGE_WIDTH # Previously, MOTION_BOX_LENGTH/WIDTH = 3/9=1/3 m big jump
+    #             waypoints.append(copy.deepcopy(wpose))
+    #             print('i=',i)
+    #             print('wpose.position.y=',wpose.position.y)
+    #     # need to set bounds on how far it should go before starting the next row of pixels
+    #     # wpose.position.z += MOTION_BOX_HEIGHT/WIDTH
+    #     # waypoints.append(wpose)
+    #     # rospy.loginfo(wpose)
+    #     plan, fraction = rc.plan_cartesian_path(waypoints)
         
-        # input(f"Cartesian Plan {i}: press <enter>") # uncomment this line if you want robot to run automatically
+    #     # input(f"Cartesian Plan {i}: press <enter>") # uncomment this line if you want robot to run automatically
 
         
-        rc.execute_plan(plan)
+    #     rc.execute_plan(plan)
+
+
 
 
             
@@ -291,15 +296,9 @@ def main():
 
         
 # Currently Sequentially read: so how can we turn the light on & off while the robot is moving in case there is a gradient?
-    input("All zeros: press <enter>")    
-    # for Python 2.7: raw_input("All zeros: press <enter>")
-
-# Uncomment below to manually control LED through button input
-    # print("Enter 1 to ON LED and 0 to OFF LED")
-    # user_input = input()                  #waits until user enters data
-    # arduino_led.control_led(user_input)     # call to turn LED on/off (as of 3/9: currently requires user input)
-#####
-    rc.goto_all_zeros()
+    # input("All zeros: press <enter>")    
+    # # for Python 2.7: raw_input("All zeros: press <enter>")
+    # rc.goto_all_zeros()
 
     try:
         rospy.spin()
@@ -323,4 +322,15 @@ Rosserial Arduino Examples: https://github.com/ros-drivers/rosserial/tree/dd7699
 '''
 
 if __name__ == '__main__':
-    main()
+    try:
+        rospy.init_node('RGB values')
+        rospy.loginfo(">>RGB Values node successfully created")
+        rgb_img = input_image.rgb
+
+        RGB_values(rgb_img)
+        # main()
+
+    except rospy.ROSInterruptException:
+        print("program interrupted before completion", file=sys.stderr)
+
+    
