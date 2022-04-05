@@ -63,7 +63,7 @@ int main(int argc, char** argv)
 
   // Reference frames for planning
   const std::string world_frame = "base_link";
-  const std::string tcp_frame = "eef_tcp";
+  const std::string tcp_frame = "tool0";
 
   // Initialize model
   if (!model->initialize(robot_description, group_name, world_frame, tcp_frame))
@@ -81,30 +81,16 @@ int main(int argc, char** argv)
   Eigen::Isometry3d pattern_origin = Eigen::Isometry3d::Identity();
   model->getFK(current_state_ptr->position, pattern_origin);
 
-
-  // std::cout << current_state_ptr->position << "\n";
-  std::cout << pattern_origin.translation() << "\n";
-
-
   // Get goal pose
   // TODO: get from action server
   // TEST ONLY: modify current position in one axis
   Eigen::Isometry3d pattern_delta = Eigen::Isometry3d::Identity();
-  pattern_delta.translation() = Eigen::Vector3d(-0.1, 0, 0);
+  pattern_delta.translation() = Eigen::Vector3d(0, 0, -0.2);
 
-  Eigen::Isometry3d pose_goal = pattern_origin * pattern_delta;
-
+  Eigen::Isometry3d pose_goal = pattern_delta * pattern_origin;
 
   // Generate path plan starting from current pose
   std::vector<descartes_core::TrajectoryPtPtr> points = makeStraightPath(pattern_origin, pose_goal);
-
-  // Debug
-  std::cout << "\n\nFinal Path Plan:\n\n";
-  for (const auto& pt : points)
-  {
-    std::cout << pt << "\n\n"; // this doesn't work, but need to inspect the points generated
-  }
-
 
 
   // Descartes: Setup DensePlanner
@@ -194,38 +180,30 @@ std::vector<descartes_core::TrajectoryPtPtr> makeStraightPath(Eigen::Isometry3d 
 
   // Path Settings
   const static double num_steps = 5;
-  const static double time_between_points = 0.01;
-
-  // Debug
-  std::cout << "Increment: ";
-  std::cout << 1.0/num_steps << "\n";
+  const static double time_between_points = 0.5;
 
   // Generate straight line path
   EigenSTL::vector_Isometry3d pattern_poses;
-  for (double i = 0.0; i < 1.0; i = i + 1.0/num_steps)
+  for (double i = 0.0; i <= 1.0; i = i + 1.0/num_steps)
   {
-    Eigen::Isometry3d pose = Eigen::Isometry3d::Identity();
+    // Grab Start Rotation
+    Eigen::Isometry3d pose = pattern_start;
+
+    // Cartesian Difference    
     pose.translation() = pattern_start.translation() + pattern_diff.translation() * i;
     pattern_poses.push_back(pose);
-
-
-    // Debug
-    std::cout << "i: " << i;
-    std::cout << "\nTranslation: \n";
-    std::cout << pose.translation();
-    std::cout << "\n";
   }
 
   // Ensure first trajectory point is at exact start
   std::vector<descartes_core::TrajectoryPtPtr> result;
-  descartes_core::TrajectoryPtPtr pt = makeCartesianPoint(pattern_start, time_between_points);
+  descartes_core::TrajectoryPtPtr pt = makeCartesianPoint(pattern_start, 5);
   result.push_back(pt);
 
   // Assemble path as list of Descartes Points
   for (const auto& pose : pattern_poses)
   {
-    // descartes_core::TrajectoryPtPtr pt = makeTolerancedCartesianPoint(pattern_start * pose, time_between_points);
-    descartes_core::TrajectoryPtPtr pt = makeCartesianPoint(pattern_start * pose, time_between_points);
+    descartes_core::TrajectoryPtPtr pt = makeTolerancedCartesianPoint( pose, time_between_points);
+    //descartes_core::TrajectoryPtPtr pt = makeCartesianPoint(pose, time_between_points);
     result.push_back(pt);
   }
 
