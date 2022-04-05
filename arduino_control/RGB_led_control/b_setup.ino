@@ -26,6 +26,7 @@ void setup() {
   pinMode(led_b, OUTPUT);
 
   // Setup ROS
+  nh.getHardware()->setBaud(500000);
   nh.initNode();
   nh.subscribe(sub_led_state);
 }

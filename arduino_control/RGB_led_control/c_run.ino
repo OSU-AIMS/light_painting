@@ -24,10 +24,17 @@ void updatePaintbrushOutput() {
 
 void loop() {
 
-  if (nh.connected()) {
-    nh.spinOnce();
-    updatePaintbrushOutput();
+  // Turn Off LED if ROS-2-Arduino connection broken
+  if (!nh.connected()) {
+    state_r = 0;
+    state_g = 0;
+    state_b = 0;
   }
-  
-  delay(100);
+
+  // Spin ROS
+  nh.spinOnce();
+
+  // Update Indicator Light
+  updatePaintbrushOutput();
+  delay(10);
 }
