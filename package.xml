@@ -16,12 +16,14 @@
     <build_depend>moveit_ros_planning</build_depend>
     <build_depend>moveit_ros_planning_interface</build_depend>
     <build_depend>moveit_visual_tools</build_depend>
+    <build_depend>message_generation</build_depend>
 
     <test_depend>roslaunch</test_depend>
 
     <exec_depend>motoman_mh5_support</exec_depend>
     <exec_depend>moveit_visual_tools</exec_depend>
     <exec_depend>rviz</exec_depend>
+    <exec_depend>message_runtime</exec_depend>
 
     <export>
         <architecture_independent/>
