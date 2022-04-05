@@ -15,9 +15,27 @@ find_package(catkin REQUIRED
     tf
     tf_conversions
     eigen_conversions
+
+    actionlib_msgs
 )
 
-catkin_package()
+###################
+## Build Actions ##
+###################
+
+add_action_files(
+  DIRECTORY action
+  FILES SimpleMoveRequest.action
+)
+
+generate_messages(
+  DEPENDENCIES actionlib_msgs std_msgs geometry_msgs
+)
+
+
+catkin_package(
+  CATKIN_DEPENDS actionlib_msgs
+)
 
 
 
