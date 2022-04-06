@@ -31,9 +31,12 @@ If you solely used the Arduino script, you would need to have a user input to tu
 '''
 
 # Custom Scripts
-import py_to_ino_RGB_LED_test as RGB_led
+# import py_to_ino_RGB_LED_test as RGB_led
 import image_inputs as input_image
 import RGB_values_publisher as RGB_publisher
+
+#Custom Message
+from light_painting.msg import RGBState
 
 
 def main():
@@ -60,7 +63,7 @@ def main():
     #  10cm x 10cm box - 1 success
     # 20cm x 20cm - 1 failed, 1 ~~ success
 
-    rgb_img = input_image.rgb
+    rgb_img = input_image.RGB
 
 
     MOTION_BOX_WIDTH =  .1
@@ -120,47 +123,56 @@ def main():
     for i in row: #range(PIXEL_COUNT):
         for j in col:
             # print('Width (number of robot movements left)',9-i)
+            print("Pixel on row {} and col {}" .format(i,j))
             wpose = rc.move_group.get_current_pose().pose
             waypoints = []
 
             # waypoints.append(wpose)
 
-            RGB_publisher(rgb_img,i,j) 
+            # RGB_publisher(rgb_img,i,j) 
 
-            if i == 0:
+            if j == 0:
                 # waypoints.append(copy.deepcopy(wpose))
                 waypoints = []
-                print('row (i)=',i)
+                # print('row (i)=',i)
 
-                print('wpose.position.y=',wpose.position.y)
-            elif i % IMAGE_WIDTH == 0: # if i is a multiple of the image width, that means it should move to the next row
-                print('Reached end of row, starting next row at index: ',i)
-                # 3 is starting next row of pixels. 
-                #So when robot finish position 2, it should go back to starting point & move down to start position 3
-                # 0 1 2: once robot reaches 2, it needs to return to 3 basically reset and go down
-                # 3 4 5
-                wpose.position.z -= MOTION_BOX_HEIGHT/IMAGE_HEIGHT
-                wpose.position.y = y_start # same y-axis starting value
-                waypoints.append(copy.deepcopy(wpose))
-                print('row (i)=',i)
-                print('wpose.position.y=',wpose.position.y)
-
-
+                # print('wpose.position.y=',wpose.position.y)
             else: # else keep incrementally moving horizontally across y-axis
-                    wpose.position.y += MOTION_BOX_WIDTH/IMAGE_WIDTH # Previously, MOTION_BOX_LENGTH/WIDTH = 3/9=1/3 m big jump
-                    waypoints.append(copy.deepcopy(wpose))
-                    print('row (i)=',i)
-                    print('wpose.position.y=',wpose.position.y)
-            # need to set bounds on how far it should go before starting the next row of pixels
-            # wpose.position.z += MOTION_BOX_HEIGHT/WIDTH
-            # waypoints.append(wpose)
-            # rospy.loginfo(wpose)
-            plan, fraction = rc.plan_cartesian_path(waypoints)
+                wpose.position.y += MOTION_BOX_WIDTH/IMAGE_WIDTH # Previously, MOTION_BOX_LENGTH/WIDTH = 3/9=1/3 m big jump
+                waypoints.append(copy.deepcopy(wpose))
+                # print('row ',i)
+                # print('wpose.position.y=',wpose.position.y)
             
+            plan, fraction = rc.plan_cartesian_path(waypoints)
             # input(f"Cartesian Plan {i}: press <enter>") # uncomment this line if you want robot to run automatically
+            rc.execute_plan(plan)
+            RGB_publisher.RGB_values(rgb_img,i,j,pub_rgb_values)
+        if i == 0:
+            print('First Row') 
+        else:   
+            # print('Starting row ',i)
+            # 3 is starting next row of pixels. 
+            #So when robot finish position 2, it should go back to starting point & move down to start position 3
+            # 0 1 2: once robot reaches 2, it needs to return to 3 basically reset and go down
+            # 3 4 5
+            wpose.position.z -= MOTION_BOX_HEIGHT/IMAGE_HEIGHT
+            wpose.position.y = y_start # same y-axis starting value
+            waypoints.append(copy.deepcopy(wpose))
+            # print('row (i)=',i)
+            # print('wpose.position.y=',wpose.position.y)
+
 
             
-            rc.execute_plan(plan)
+        # need to set bounds on how far it should go before starting the next row of pixels
+        # wpose.position.z += MOTION_BOX_HEIGHT/WIDTH
+        # waypoints.append(wpose)
+        # rospy.loginfo(wpose)
+        # plan, fraction = rc.plan_cartesian_path(waypoints)
+        
+        # input(f"Cartesian Plan {i}: press <enter>") # uncomment this line if you want robot to run automatically
+
+        
+        # rc.execute_plan(plan)
 
 
         
@@ -192,12 +204,13 @@ Rosserial Arduino Examples: https://github.com/ros-drivers/rosserial/tree/dd7699
 
 if __name__ == '__main__':
     try:
-        rospy.init_node('RGB values')
+        pub_rgb_values = rospy.Publisher('paintbrush_color',RGBState, queue_size=5)       
+        rospy.init_node('RGBvalues')
         rospy.loginfo(">>RGB Values node successfully created")
-        rgb_img = input_image.rgb
+        rospy.Rate(1)
 
-        RGB_values(rgb_img)
-        # main()
+        # RGB_publisher.RGB_values(rgb_img)
+        main()
 
     except rospy.ROSInterruptException:
         print("program interrupted before completion", file=sys.stderr)

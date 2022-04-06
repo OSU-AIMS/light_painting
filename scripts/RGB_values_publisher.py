@@ -31,16 +31,18 @@ from light_painting.msg import RGBState
 #     print('RGB should be on')
 
 
-def RGB_values(rgb_img, i,j):       
-    rospy.init_node('RGB values')
-    rospy.loginfo(">>RGB Values node successfully created")
+def RGB_values(rgb_img, i,j,pub_rgb_values):
+    # pub_rgb_values = rospy.Publisher('paintbrush_color',RGBState, queue_size=5)       
+    # # rospy.init_node('RGBvalues')
+    # rospy.loginfo(">>RGB Values node successfully created")
+    # rospy.Rate(1)
 
-    rows = np.array([0,1,2])
-    cols = np.array([0,1,2])
-    print('Number of pixels',len(rows)*len(cols))
+    # rows = np.array([0,1,2])
+    # cols = np.array([0,1,2])
+    # print('Number of pixels',len(rows)*len(cols))
 
     msg = RGBState()
-    pub_rgb_values = rospy.Publisher('/paintbrush_color',RGBState, queue_size=5)
+    
 
     # need to recall individual pixels between moves
     # For loop below will loop through all pixels each time
@@ -51,13 +53,14 @@ def RGB_values(rgb_img, i,j):
     msg.blue = b
     pub_rgb_values.publish(msg)
     print('msg: \n',msg)
+    
 
-    IMAGE_HEIGHT = np.size(rgb_img,0) 
-    IMAGE_WIDTH = np.size(rgb_img,1)
-    print('lenght(height):',(range(IMAGE_HEIGHT)))
+    # IMAGE_HEIGHT = np.size(rgb_img,0) 
+    # IMAGE_WIDTH = np.size(rgb_img,1)
+    # print('lenght(height):',(range(IMAGE_HEIGHT)))
 
-    for k in range(IMAGE_HEIGHT):
-        print('value of i:',k)
+    # for k in range(IMAGE_HEIGHT):
+    #     print('value of i:',k)
 
     ''' Testing reading values from RGB
     # print('Size of RGB: ',rgb_img.size)
@@ -89,8 +92,8 @@ def RGB_values(rgb_img, i,j):
 
 def main():
     rgb_img = input_image.RGB
-    row = 0
-    col = 0
+    row = 1
+    col = 1
     RGB_values(rgb_img,row,col)
     try:
         rospy.spin()
