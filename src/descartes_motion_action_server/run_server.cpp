@@ -173,17 +173,29 @@ int main(int argc, char** argv)
 
   // Get goal pose
   // TODO: get from action server
-  // TEST ONLY: modify current position in one axis
-  Eigen::Isometry3d pattern_down = Eigen::Isometry3d::Identity();
 
-  pattern_down.translation()  = Eigen::Vector3d(0, 0, -0.2);
+  // TEST ONLY: traces edges of a cartesian box
+  EigenSTL::vector_Vector3d mySquarePoints;
+  mySquarePoints.push_back(Eigen::Vector3d(0, 0, -0.2));  // down
+  mySquarePoints.push_back(Eigen::Vector3d(0, -0.2, 0));  // left
+  mySquarePoints.push_back(Eigen::Vector3d(0, 0, 0.2));   // up
+  mySquarePoints.push_back(Eigen::Vector3d(0, 0.2, 0));   // right
 
-  Eigen::Isometry3d pattern_origin = sm.CalcCurrentPose();
+  for (const auto& point_vector : mySquarePoints)
+  {
+    // Grab Start Rotation
+    Eigen::Isometry3d pose = Eigen::Isometry3d::Identity();;
+    pose.translation()  = point_vector;
 
-  Eigen::Isometry3d pose_down = pattern_down * pattern_origin;
+    // Generate a Goal Pose
+    Eigen::Isometry3d my_pose_goal = pose * sm.CalcCurrentPose();
 
-  // Call Move Request
-  sm.MoveRequest(pose_down);
+    // Call Move Request
+    sm.MoveRequest(my_pose_goal);
+    ROS_INFO("SimpleMover: Moved to New Point!");
+
+    ros::Duration(1).sleep();
+  }
 }
 
 
@@ -220,8 +232,8 @@ std::vector<descartes_core::TrajectoryPtPtr> SimpleMover::makeStraightPath(Eigen
   pattern_diff.translation() =  pattern_end.translation() - pattern_start.translation();
 
   // Path Settings
-  const static double num_steps = 5;
-  const static double time_between_points = 0.5;
+  const static double num_steps = 20;
+  const static double time_between_points = 0.02;
 
   // Generate straight line path
   EigenSTL::vector_Isometry3d pattern_poses;
@@ -237,7 +249,7 @@ std::vector<descartes_core::TrajectoryPtPtr> SimpleMover::makeStraightPath(Eigen
 
   // Ensure first trajectory point is at exact start
   std::vector<descartes_core::TrajectoryPtPtr> result;
-  descartes_core::TrajectoryPtPtr pt = makeCartesianPoint(pattern_start, 1);
+  descartes_core::TrajectoryPtPtr pt = makeCartesianPoint(pattern_start, 0.5);
   result.push_back(pt);
 
   // Assemble path as list of Descartes Points
