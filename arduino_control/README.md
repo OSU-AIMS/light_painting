@@ -6,6 +6,7 @@ The `arduino_control` directory is an Arduino Sketchbook.
 | Arduino Sketch | Description |
 | -------------- | ----------- |
 | RGB_led_control | ROS-enabled control of an RGB led on the Arduino. | 
+| serial_led_control | Serial-based control of a single LED on the Arduino. <br>Binary commands only. |
 
 
 
