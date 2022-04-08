@@ -1,27 +1,17 @@
 #!/usr/bin/env python3
 
-# Importing Libraries
-# For Arduino Communication:
-# https://create.arduino.cc/projecthub/ansh2919/serial-communication-between-python-and-arduino-e7cce0
-
-# import serial
-# Refer to pyserial docs: https://pyserial.readthedocs.io/en/latest/pyserial.html
-# python3 -m pip install pyserial
-# import time
 import numpy as np
 import rospy
 
 
-# ROS Data Types
-
 # Custom Script
 import image_inputs as input_image
-import light_painting.msg #custom message type
-import RGBState
+from light_painting.msg import RGBState #custom message type
 
 
-# arduino = serial.Serial(port='/dev/ttyACM0',baudrate=9600,timeout=0.1)
-# Code from: https://www.electronicshub.org/controlling-arduino-led-python/
+#######################
+## Support Functions ##
+#######################
 
 def RGB(red,green,blue):
 
@@ -29,7 +19,6 @@ def RGB(red,green,blue):
     arduino.write(green)
     arduino.write(blue)
     print('RGB should be on')
-
 
 def RGB_values(rgb_img):    
     ''' Testing reading values from RGB
@@ -64,6 +53,11 @@ def RGB_values(rgb_img):
             msg.blue = b
             pub_rgb_values.publish(msg)
 
+
+
+##########
+## Main ##
+##########
 
 def main():
     rgb_img = input_image.RGB
