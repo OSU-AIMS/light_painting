@@ -28,7 +28,9 @@ binary = cv2.imread(join(BINARY,aims),0)
 
 BGR = cv2.imread(join(R_G_B,green_cross))
 RGB = cv2.cvtColor(BGR,cv2.COLOR_BGR2RGB)
-# RGB = cv2.imread(join(RGB,blockO_rgb))
+
+# BGR = cv2.imread(join(R_G_B,blockO_rgb))
+# RGB = cv2.cvtColor(BGR,cv2.COLOR_BGR2RGB)
 
 
 # print('binary',binary)

@@ -1,104 +1,60 @@
 #!/usr/bin/env python3
 
-# Importing Libraries
-# For Arduino Communication:
-# https://create.arduino.cc/projecthub/ansh2919/serial-communication-between-python-and-arduino-e7cce0
+def sendRGB2LED(pub_handle, r = 0, g = 0, b = 0):
 
-# import serial
-# Refer to pyserial docs: https://pyserial.readthedocs.io/en/latest/pyserial.html
-# python3 -m pip install pyserial
-# import time
+    # Init new message object
+    msg = RGBState()
+    
+    # Fill Message
+    msg.red = r
+    msg.green = g
+    msg.blue = b
+    pub_handle.publish(msg)
+
+    return 0
+    
+
+
+###################
+#### UNIT TEST ####
+
 import numpy as np
 import rospy
 import sys
 
-
 # ROS Data Types
-
-# Custom Script
-import image_inputs as input_image
 from light_painting.msg import RGBState
 
-
-# arduino = serial.Serial(port='/dev/ttyACM0',baudrate=9600,timeout=0.1)
-# Code from: https://www.electronicshub.org/controlling-arduino-led-python/
-
-# def RGB(red,green,blue):
-
-#     arduino.write(red)
-#     arduino.write(green)
-#     arduino.write(blue)
-#     print('RGB should be on')
-
-
-def RGB_values(rgb_img, i,j,pub_rgb_values):
-    # pub_rgb_values = rospy.Publisher('paintbrush_color',RGBState, queue_size=5)       
-    # # rospy.init_node('RGBvalues')
-    # rospy.loginfo(">>RGB Values node successfully created")
-    # rospy.Rate(1)
-
-    # rows = np.array([0,1,2])
-    # cols = np.array([0,1,2])
-    # print('Number of pixels',len(rows)*len(cols))
-
-    msg = RGBState()
-    
-
-    # need to recall individual pixels between moves
-    # For loop below will loop through all pixels each time
-    # so I added i (rows), j(columns) as parameters to get from the RGB_no_descartes script
-    r,g,b = rgb_img[i,j]
-    msg.red = r
-    msg.green = g
-    msg.blue = b
-    pub_rgb_values.publish(msg)
-    print('msg: \n',msg)
-    
-
-    # IMAGE_HEIGHT = np.size(rgb_img,0) 
-    # IMAGE_WIDTH = np.size(rgb_img,1)
-    # print('lenght(height):',(range(IMAGE_HEIGHT)))
-
-    # for k in range(IMAGE_HEIGHT):
-    #     print('value of i:',k)
-
-    ''' Testing reading values from RGB
-    # print('Size of RGB: ',rgb_img.size)
-    # print('rgb_img[0,0] pixel 1 value:',rgb_img[0,0])
-    # print('rgb_img.item(0) pixel 1 value:',rgb_img.item(0)) # gets only the 1st value
-    # print('rgb_img[0,0] pixel 4 value(mid pixel):',rgb_img[1,1])
-    # print('rgb_img[0,0] pixel 8 value(bottom right):',rgb_img[2,2])
-    # red,green,blue = rgb_img[1,1]
-    # print('Red value of pixel 4:',red)
-    # print('Green value of Pixel 4:',green)
-    # print('Blue value of pixel 4:',blue) 
-    
-    print('rgb_image.item(0)',rgb_img.item(0))
-    print('rgb_image.item(1)',rgb_img.item(1))
-    print('rgb_image.item(2)',rgb_img.item(2))
-    print('rgb_image.item(3)',rgb_img.item(3))
-    '''
-    # for i in rows:
-    #     for j in cols:
-    #         r,g,b = rgb_img[i,j] # stores each slice value into r,g,b (order specific!)
-    #         # Check in image_inputs.py to make sure you converted from BGR to RGB (thanks openCV)
-    #         msg.red = r
-    #         msg.green = g
-    #         msg.blue = b
-    #         pub_rgb_values.publish(msg)
-    #         print('msg: \n',msg)
-    #         break
-
-
 def main():
-    rgb_img = input_image.RGB
-    row = 1
-    col = 1
-    RGB_values(rgb_img,row,col)
-    try:
-        rospy.spin()
-    except KeyboardInterrupt:
-        print("Shutting down")
+
+    # Setup Publisher
+    pub_rgb_values = rospy.Publisher('/paintbrush_color', RGBState, queue_size=5)
+
+    # Setup ROS Node
+    rospy.init_node('RGB_tester')
+    rospy.loginfo(">>RGB_tester node successfully created")
+   
+    # Set Node Cycle Rate
+    rospy.Rate(10)
+
+    # TESTING: Send Color Light
+    rospy.loginfo("Red")
+    sendRGB2LED(pub_rgb_values, r=255)
+    rospy.sleep(2)
+
+    rospy.loginfo("Green")
+    sendRGB2LED(pub_rgb_values, g=255)
+    rospy.sleep(2)
+
+    rospy.loginfo("Blue")
+    sendRGB2LED(pub_rgb_values, b=255)
+    rospy.sleep(2)
+
+    rospy.loginfo("Off")
+    sendRGB2LED(pub_rgb_values)
+
+    # End
+    print("Shutting down")
 
 
 if __name__ == '__main__':
