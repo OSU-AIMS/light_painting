@@ -32,6 +32,15 @@
 // ------------------------
 
 class SimpleMover {
+
+  protected:
+
+    /* Setup Action Server */
+    actionlib::SimpleActionServer<geometry_msgs::Pose> as_;
+    std::str action_name_;
+
+
+
   public:
 
     /* Public Variables */
@@ -45,10 +54,16 @@ class SimpleMover {
     
 
     /* Constructor */
-    SimpleMover(ros::NodeHandle *nh_passthru, const std::string robot_group_name)
+    SimpleMover(ros::NodeHandle *nh_passthru, const std::string robot_group_name) : 
+      as_(nh, "move_descartes_line", boost::bind(&SimpleMover::MoveRequest, this, _1), false),
+      action_name_("move_descartes_line")
     {  
       nh = nh_passthru;
 
+      // Init ROS Action Server
+      as_.start();
+
+      // Init Descartes Robot Model
       descartes_core::RobotModelPtr model_setup (new descartes_moveit::IkFastMoveitStateAdapter());
       model = model_setup;
 
