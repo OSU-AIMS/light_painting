@@ -9,18 +9,18 @@ RESOURCES = join(CWD,'images') # combine script location with folder name
 
 # Types of image resources
 BINARY = join(RESOURCES,'binary') # combine image folder location with binary
-# print('Binary Directory:',BINARY)
 GRAYSCALE = join(RESOURCES,'grayscale') 
 R_G_B = join(RESOURCES,'RGB') 
 
 #Binary Images:
 white_rim4x3 = 'white_rim_4x3.tif'
+white_rim3x3 = 'white_rim_3x3.tif'
 blockO = 'block-O_10x10.tif'
 aims = 'AIMS_20x5.tif'
 
-# binary = cv2.imread(join(BINARY,white_rim4x3),0)
+binary = cv2.imread(join(BINARY,white_rim3x3),0)
 # binary = cv2.imread(join(BINARY,blockO),0)
-binary = cv2.imread(join(BINARY,aims),0)
+# binary = cv2.imread(join(BINARY,aims),0)
 
 #RGB images:
 green_cross = 'green_cross.tif' # 3x3 image
@@ -34,11 +34,6 @@ RGB = cv2.cvtColor(BGR,cv2.COLOR_BGR2RGB)
 
 #GrayScale
 sweep_10x10 = 'sweep.tif'
-
 GS = cv2.imread(join(GRAYSCALE,sweep_10x10),0)
 
-# print('binary',binary)
-# Uncomment for debugging
-# print('join(BINARY,white_rim)',join(BINARY,white_rim))
-# print(binary)
 

@@ -7,7 +7,6 @@
 import serial
 # Refer to pyserial docs: https://pyserial.readthedocs.io/en/latest/pyserial.html
 # python3 -m pip install pyserial
-import time
 
 
 arduino = serial.Serial(port='/dev/ttyACM0',baudrate=9600,timeout=0.1)

@@ -16,6 +16,7 @@ find_package(catkin REQUIRED
 add_message_files(
   FILES
   RGBState.msg
+  BinaryState.msg
 )
 
 generate_messages(
