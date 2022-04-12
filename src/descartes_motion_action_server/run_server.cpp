@@ -36,8 +36,8 @@ class SimpleMover {
   protected:
 
     /* Setup Action Server */
-    actionlib::SimpleActionServer<geometry_msgs::Pose> as_;
-    std::str action_name_;
+    actionlib::SimpleActionServer<light_painting::SimpleMoveRequest> as_;
+    std::string action_name_;
 
 
 
@@ -55,7 +55,7 @@ class SimpleMover {
 
     /* Constructor */
     SimpleMover(ros::NodeHandle *nh_passthru, const std::string robot_group_name) : 
-      as_(nh, "move_descartes_line", boost::bind(&SimpleMover::MoveRequest, this, _1), false),
+      as_("move_descartes_line", boost::bind(&SimpleMover::MoveRequest, this, _1), false),
       action_name_("move_descartes_line")
     {  
       nh = nh_passthru;
