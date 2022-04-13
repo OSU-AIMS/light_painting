@@ -10,8 +10,6 @@ from geometry_msgs.msg import Pose
 # import serial
 # arduino = serial.Serial(port='/dev/ttyACM0',baudrate=9600,timeout=0.1)
 
-import time
-
 # For Image Manipulation
 import cv2
 import numpy as np

@@ -33,7 +33,8 @@ RGB = cv2.cvtColor(BGR,cv2.COLOR_BGR2RGB)
 # RGB = cv2.cvtColor(BGR,cv2.COLOR_BGR2RGB)
 
 #GrayScale
-sweep_10x10 = 'sweep.tif'
-GS = cv2.imread(join(GRAYSCALE,sweep_10x10),0)
+# sweep_10x20 = 'sweep.tif'
+sweep_3x3 = 'sweep_3x3.tif'
+GS = cv2.imread(join(GRAYSCALE,sweep_3x3),0)
 
 
