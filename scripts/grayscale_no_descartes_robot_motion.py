@@ -71,7 +71,7 @@ def main():
     move_robot = True # set equal to False to not move robot
 
     # init node & Publishers
-    pub_GS_values = rospy.Publisher('paintbrush_grayscale',GrayScale, queue_size=1)       
+    pub_GS_values = rospy.Publisher('/paintbrush_grayscale',GrayScale, queue_size=1)       
     rospy.init_node('grayscale')
     rospy.loginfo(">>grayscale node successfully created")
     rospy.Rate(1)

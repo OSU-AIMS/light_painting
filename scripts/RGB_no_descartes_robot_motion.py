@@ -70,7 +70,7 @@ def main():
     move_robot = True # set equal to False to not move robot
 
     # init node & Publishers
-    pub_rgb_values = rospy.Publisher('paintbrush_color',RGBState, queue_size=5)       
+    pub_rgb_values = rospy.Publisher('/paintbrush_color',RGBState, queue_size=5)       
     rospy.init_node('picasso')
     rospy.loginfo(">>picasso node successfully created")
     rospy.Rate(1)
