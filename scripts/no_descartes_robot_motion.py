@@ -273,8 +273,6 @@ def main():
         rc.execute_plan(plan)
 
 
-
-
             
 
             # if binary_img.item(i) == 2 or 5 or 8: 
