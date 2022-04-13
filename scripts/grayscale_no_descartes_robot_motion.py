@@ -15,9 +15,12 @@ import numpy as np
 # Custom Scripts
 import image_inputs as input_image
 from GrayScale_values_publisher import sendGrayScale2LED
+from RGB_values_publisher import sendRGB2LED
 
 #Custom Message
 from light_painting.msg import GrayScale
+from light_painting.msg import RGBState
+
 
 # -----------------------------
 # Script uses ROS Publisher to communicate with Arduino.
@@ -43,7 +46,7 @@ col = range(IMAGE_WIDTH) # [0,1,2]
 MOTION_BOX_WIDTH =  IMAGE_WIDTH*MOTION_BOX_scale # m
 MOTION_BOX_HEIGHT = IMAGE_HEIGHT*MOTION_BOX_scale # m
 
-
+TIME_GRAY_SCALE = .5/255
 
 # Starting positions for robot
 z_start = 1 # m
@@ -71,7 +74,9 @@ def main():
     move_robot = True # set equal to False to not move robot
 
     # init node & Publishers
-    pub_GS_values = rospy.Publisher('/paintbrush_grayscale',GrayScale, queue_size=1)       
+    # pub_GS_values = rospy.Publisher('/paintbrush_grayscale',GrayScale, queue_size=1)       
+    pub_GS_values = rospy.Publisher('/paintbrush_color',RGBState, queue_size=1)       
+
     rospy.init_node('grayscale')
     rospy.loginfo(">>grayscale node successfully created")
     rospy.Rate(1)
@@ -115,6 +120,7 @@ def main():
             print("Pixel on row {} and col {}" .format(i,j))
             wpose = rc.move_group.get_current_pose().pose
             v = img[i,j].astype('uint8')
+            print("LED grayscale:",v)
 
             if j != 0: 
                 # if not initial column, keep moving horizontally
@@ -126,11 +132,19 @@ def main():
             if move_robot:
                 plan, fraction = rc.plan_cartesian_path(waypoints)
                 rc.execute_plan(plan)
-                sendGrayScale2LED(pub_GS_values,v) # sends publisher handle & r,g,b values to RGB Led Via ROS
-                time.sleep(0.5) # Delay keeps light on/off for certain amount of time for consistent lumosity
-                sendGrayScale2LED(pub_GS_values) 
+                # sendGrayScale2LED(pub_GS_values,v) # sends publisher handle & r,g,b values to RGB Led Via ROS
+                sendRGB2LED(pub_GS_values,v,v,v) # sends publisher handle & r,g,b values to RGB Led Via ROS
+
+                time.sleep(v*TIME_GRAY_SCALE) # Delay keeps light on/off for certain amount of time for consistent lumosity
+
+                # sendGrayScale2LED(pub_GS_values) 
+                sendRGB2LED(pub_GS_values) 
+
                 # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
-                time.sleep(0.5)        
+                time.sleep(0.25)        
+    if move_robot:
+        rc.goto_all_zeros()
+     
     try:
         rospy.spin()
     except KeyboardInterrupt:
