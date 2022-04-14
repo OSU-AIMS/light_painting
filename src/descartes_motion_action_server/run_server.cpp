@@ -13,9 +13,12 @@
 #include <ros/ros.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <actionlib/client/simple_action_client.h>
+#include <actionlib/server/simple_action_server.h>
+#include <tf2_eigen/tf2_eigen.h>
 
 // ROS Messages
 #include <sensor_msgs/JointState.h>
+#include <light_painting/SimpleMoveRequestAction.h>
 
 // Descartes Tools
 #include <descartes_moveit/ikfast_moveit_state_adapter.h>
@@ -35,10 +38,16 @@ class SimpleMover {
 
   protected:
 
+    /* ROS NodeHandle */
+    ros::NodeHandle nh_;
+
     /* Setup Action Server */
-    actionlib::SimpleActionServer<light_painting::SimpleMoveRequest> as_;
+    actionlib::SimpleActionServer<light_painting::SimpleMoveRequestAction> as_;
     std::string action_name_;
 
+    /* Action Messages */
+    light_painting::SimpleMoveRequestFeedback feedback_;
+    light_painting::SimpleMoveRequestResult result_;
 
 
   public:
@@ -46,19 +55,15 @@ class SimpleMover {
     /* Public Variables */
     const std::string world_frame = "base_link";
     const std::string tcp_frame = "tool0";
-    ros::NodeHandle *nh;
-
 
     /* Public Function Declarations */
-    bool executeTrajectory(const trajectory_msgs::JointTrajectory& trajectory);
-    
+    bool executeTrajectory(const trajectory_msgs::JointTrajectory& trajectory);   
 
     /* Constructor */
-    SimpleMover(ros::NodeHandle *nh_passthru, const std::string robot_group_name) : 
-      as_("move_descartes_line", boost::bind(&SimpleMover::MoveRequest, this, _1), false),
+    SimpleMover(const std::string robot_group_name) : 
+      as_(nh_, "move_descartes_line", boost::bind(&SimpleMover::MoveRequest, this, _1), false),
       action_name_("move_descartes_line")
     {  
-      nh = nh_passthru;
 
       // Init ROS Action Server
       as_.start();
@@ -84,10 +89,19 @@ class SimpleMover {
       }
     }
 
+    ~SimpleMover(void) {}
+
 
     /* New Move Request */
-    int MoveRequest(Eigen::Isometry3d pose_goal)
+    int MoveRequest(const light_painting::SimpleMoveRequestGoalConstPtr &message)
     {
+
+      // Deconstruct action request message into local variables
+      Eigen::Isometry3d pose_goal;
+      tf2::convert(message->goal, pose_goal);
+
+      const int duration = message->duration;
+
       // Lookup current pose
       Eigen::Isometry3d pattern_origin = CalcCurrentPose();
 
@@ -111,7 +125,7 @@ class SimpleMover {
 
       // Assemble ROS JointTrajectory Message
       std::vector<std::string> names;
-      nh->getParam("controller_joint_names", names);
+      nh_.getParam("controller_joint_names", names);
 
       trajectory_msgs::JointTrajectory joint_solution;
       joint_solution.joint_names = names;
@@ -177,14 +191,20 @@ int main(int argc, char** argv)
 {
   // Initialize ROS
   ros::init(argc, argv, "simple_mover_server");
-  ros::NodeHandle nh;
 
   // Keep ROS Node & Supporting Processes Alive (single thread)
-  ros::AsyncSpinner spinner (1);
+  ros::AsyncSpinner spinner (2);
   spinner.start();
 
   // Init SimpleMover Class
-  SimpleMover sm(&nh, "mh5l");
+  SimpleMover sm("mh5l");
+
+
+  // Spin
+  ros::waitForShutdown();
+
+
+  /*
 
   // Get goal pose
   // TODO: get from action server
@@ -206,11 +226,18 @@ int main(int argc, char** argv)
     Eigen::Isometry3d my_pose_goal = pose * sm.CalcCurrentPose();
 
     // Call Move Request
-    sm.MoveRequest(my_pose_goal);
+    // sm.MoveRequest(my_pose_goal);
     ROS_INFO("SimpleMover: Moved to New Point!");
 
     ros::Duration(1).sleep();
   }
+
+  */
+
+  // KEEP SERVER ALIVE //
+
+  return 0;
+
 }
 
 

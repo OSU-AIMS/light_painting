@@ -15,8 +15,11 @@ find_package(catkin REQUIRED
     tf
     tf_conversions
     eigen_conversions
+    tf2_eigen
 
     actionlib_msgs
+    geometry_msgs
+    std_msgs
 )
 
 ###################
@@ -29,25 +32,29 @@ add_action_files(
 )
 
 generate_messages(
-  DEPENDENCIES actionlib_msgs std_msgs geometry_msgs
+  DEPENDENCIES actionlib_msgs geometry_msgs std_msgs
 )
 
 
 catkin_package(
-  CATKIN_DEPENDS actionlib_msgs
+  CATKIN_DEPENDS actionlib_msgs geometry_msgs std_msgs
 )
-
 
 
 ###########
 ## Build ##
 ###########
 
+
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
 add_executable(${PROJECT_NAME}_single_move_action src/descartes_motion_action_server/run_server.cpp)
+
+add_dependencies(
+  ${PROJECT_NAME}_single_move_action ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  )
 
 target_link_libraries(${PROJECT_NAME}_single_move_action
     ${catkin_LIBRARIES}
