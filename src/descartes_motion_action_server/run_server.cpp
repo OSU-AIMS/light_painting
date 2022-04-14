@@ -96,17 +96,15 @@ class SimpleMover {
     int MoveRequest(const light_painting::SimpleMoveRequestGoalConstPtr &message)
     {
 
-      // Deconstruct action request message into local variables
+      // Deconstruct action request pose in message into local variable
       Eigen::Isometry3d pose_goal;
       tf2::convert(message->goal, pose_goal);
-
-      const int duration = message->duration;
 
       // Lookup current pose
       Eigen::Isometry3d pattern_origin = CalcCurrentPose();
 
       // Generate path plan starting from current pose
-      std::vector<descartes_core::TrajectoryPtPtr> points = makeStraightPath(pattern_origin, pose_goal);
+      std::vector<descartes_core::TrajectoryPtPtr> points = makeStraightPath(pattern_origin, pose_goal, message->duration);
 
       // Descartes: Build Trajectory
       // build large kinematic graph
@@ -138,8 +136,11 @@ class SimpleMover {
       }
 
 
-      // Send ROS trajectory to the robot action controller
-      if (!executeTrajectory(joint_solution))
+      // Send ROS trajectory to the robot action controller & report result
+      result_.complete = executeTrajectory(joint_solution);
+      as_.setSucceeded(result_);
+
+      if (!result_.complete)
       {
         ROS_ERROR("Could not execute trajectory!");
         return -6;
@@ -147,7 +148,7 @@ class SimpleMover {
 
 
       // Wait till user kills the process (Control-C)
-      ROS_INFO("Done!");
+      ROS_INFO("SimpleMover: Done!");
       return 0;
     }
 
@@ -175,7 +176,8 @@ class SimpleMover {
     descartes_core::TrajectoryPtPtr makeTolerancedCartesianPoint(const Eigen::Isometry3d& pose, double dt);
     std::vector<descartes_core::TrajectoryPtPtr> makeStraightPath(
       Eigen::Isometry3d pattern_start = Eigen::Isometry3d::Identity(),
-      Eigen::Isometry3d pattern_end = Eigen::Isometry3d::Identity()
+      Eigen::Isometry3d pattern_end = Eigen::Isometry3d::Identity(),
+      int duration = 10
     );
 };
 
@@ -199,45 +201,10 @@ int main(int argc, char** argv)
   // Init SimpleMover Class
   SimpleMover sm("mh5l");
 
-
-  // Spin
+  // Spin to keep server alive
   ros::waitForShutdown();
 
-
-  /*
-
-  // Get goal pose
-  // TODO: get from action server
-
-  // TEST ONLY: traces edges of a cartesian box
-  EigenSTL::vector_Vector3d mySquarePoints;
-  mySquarePoints.push_back(Eigen::Vector3d(0, 0, -0.2));  // down
-  mySquarePoints.push_back(Eigen::Vector3d(0, -0.2, 0));  // left
-  mySquarePoints.push_back(Eigen::Vector3d(0, 0, 0.2));   // up
-  mySquarePoints.push_back(Eigen::Vector3d(0, 0.2, 0));   // right
-
-  for (const auto& point_vector : mySquarePoints)
-  {
-    // Grab Start Rotation
-    Eigen::Isometry3d pose = Eigen::Isometry3d::Identity();;
-    pose.translation()  = point_vector;
-
-    // Generate a Goal Pose
-    Eigen::Isometry3d my_pose_goal = pose * sm.CalcCurrentPose();
-
-    // Call Move Request
-    // sm.MoveRequest(my_pose_goal);
-    ROS_INFO("SimpleMover: Moved to New Point!");
-
-    ros::Duration(1).sleep();
-  }
-
-  */
-
-  // KEEP SERVER ALIVE //
-
   return 0;
-
 }
 
 
@@ -267,15 +234,17 @@ descartes_core::TrajectoryPtPtr SimpleMover::makeTolerancedCartesianPoint(const 
 // Generate Path
 // ----------------------
 
-std::vector<descartes_core::TrajectoryPtPtr> SimpleMover::makeStraightPath(Eigen::Isometry3d pattern_start, Eigen::Isometry3d pattern_end)
+std::vector<descartes_core::TrajectoryPtPtr> SimpleMover::makeStraightPath(Eigen::Isometry3d pattern_start, Eigen::Isometry3d pattern_end, int duration)
 {
   // Extract Pose Position Start-End Differences
   Eigen::Isometry3d pattern_diff = Eigen::Isometry3d::Identity();
   pattern_diff.translation() =  pattern_end.translation() - pattern_start.translation();
 
   // Path Settings
-  const static double num_steps = 20;
-  const static double time_between_points = 0.02;
+  const static double num_steps = 50;
+  const double time_between_points = duration / num_steps;
+
+  ROS_INFO_STREAM("SimpleMover Request Recieved. Constructing " << num_steps << " intermediate points. Time (sec) between points: " << time_between_points);
 
   // Generate straight line path
   EigenSTL::vector_Isometry3d pattern_poses;
@@ -291,7 +260,7 @@ std::vector<descartes_core::TrajectoryPtPtr> SimpleMover::makeStraightPath(Eigen
 
   // Ensure first trajectory point is at exact start
   std::vector<descartes_core::TrajectoryPtPtr> result;
-  descartes_core::TrajectoryPtPtr pt = makeCartesianPoint(pattern_start, 0.5);
+  descartes_core::TrajectoryPtPtr pt = makeCartesianPoint(pattern_start, 0.01);
   result.push_back(pt);
 
   // Assemble path as list of Descartes Points
@@ -321,7 +290,7 @@ bool SimpleMover::executeTrajectory(const trajectory_msgs::JointTrajectory& traj
     return false;
   }
 
-  ROS_INFO("SimpleMover: Connected to action server!");
+  ROS_INFO("SimpleMover: Sent trajectory to motion server!");
 
   control_msgs::FollowJointTrajectoryGoal goal;
   goal.trajectory = trajectory;
