@@ -114,7 +114,8 @@ def main():
         for j in col:
             print("Pixel on row {} and col {}" .format(i,j))
             wpose = rc.move_group.get_current_pose().pose
-            v = img[i,j].astype('uint8')
+            v = img[i,j].astype('uint8') # get pixel value from image
+            print('pixel Value:',v)
 
             if j != 0: 
                 # if not initial column, keep moving horizontally
