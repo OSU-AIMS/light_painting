@@ -141,7 +141,72 @@ def main():
                 sendRGB2LED(pub_GS_values) 
 
                 # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
-                time.sleep(0.25)        
+                time.sleep(0.25)     
+
+                                # if v <= 25:
+                #     delay = 0.1 # (sec)-delay
+                #     print('pixel Value:',v)
+                #     print('Delay(sec):',delay)
+                #     sendRGB2LED(pub_rgb_values,v,v,v)
+                #     time.sleep(delay) # Delay keeps light on/off for certain amount of time for consistent lumosity
+                #     sendRGB2LED(pub_rgb_values) 
+                #     # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
+                #     time.sleep(0.05) 
+
+                # elif v> 25 and v<= 51:
+                #     delay = 0.5
+                #     print('pixel Value:',v)
+                #     print('Delay(sec):',delay)
+                #     sendRGB2LED(pub_rgb_values,v,v,v)
+                #     time.sleep(delay) # Delay keeps light on/off for certain amount of time for consistent lumosity
+                #     sendRGB2LED(pub_rgb_values) 
+                #     # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
+                #     time.sleep(0.05) 
+
+                # elif v>51 and v<=102:
+                #     delay = 1
+                #     print('pixel Value:',v)
+                #     print('Delay(sec):',delay)
+                #     sendRGB2LED(pub_rgb_values,v,v,v)
+                #     time.sleep(delay) # Delay keeps light on/off for certain amount of time for consistent lumosity
+                #     sendRGB2LED(pub_rgb_values) 
+                #     # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
+                #     time.sleep(0.05) 
+
+                # elif v>102 and v<=153:
+                #     delay = 1.5
+                #     print('pixel Value:',v)
+                #     print('Delay(sec):',delay)
+                #     sendRGB2LED(pub_rgb_values,v,v,v)
+                #     time.sleep(delay) # Delay keeps light on/off for certain amount of time for consistent lumosity
+                #     sendRGB2LED(pub_rgb_values) 
+                #     # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
+                #     time.sleep(0.05) 
+
+                # elif v>153 and v<=204:
+                #     delay = 2.0
+                #     print('pixel Value:',v)
+                #     print('Delay(sec):',delay)
+                #     sendRGB2LED(pub_rgb_values,v,v,v)
+                #     time.sleep(delay) # Delay keeps light on/off for certain amount of time for consistent lumosity
+                #     sendRGB2LED(pub_rgb_values) 
+                #     # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
+                #     time.sleep(0.05) 
+
+                # else:
+                #     delay = 2.5
+                #     print('pixel Value:',v)
+                #     print('Delay:',delay) 
+                #     sendRGB2LED(pub_rgb_values,v,v,v)
+                #     time.sleep(delay) # Delay keeps light on/off for certain amount of time for consistent lumosity  
+                #     sendRGB2LED(pub_rgb_values) 
+                #     # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
+                #     time.sleep(0.05)   
+                
+                     
+
+                # sendRGB2LED(pub_rgb_values,v,v,v)
+                # time.sleep(0.5) # Delay keeps light on/off for certain amount of time for consistent lumosity   
     if move_robot:
         rc.goto_all_zeros()
      
