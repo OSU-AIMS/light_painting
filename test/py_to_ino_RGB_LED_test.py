@@ -67,30 +67,6 @@ def main():
     except KeyboardInterrupt:
         print("Shutting down")
 
-
-class RGB_publisher():
-    def __init__(self,rgb_values):
-        self.rgb_values = rgb_values
-    def runner(self,data):
-        try:
-            rgb_values = [0,0,0]
-            rgb_img = input_image.rgb
-
-
-            r,g,b = RGB_values(rgb_img)
-            data = (r,g,b)
-
-            rgb_values.data = list(bytearray(data))
-
-            self.rgb_values.publish(rgb_values)
-            rospy.loginfo(rgb_values)
-
-
-        except rospy.ROSInterruptException:
-            exit()
-        except KeyboardInterrupt:
-            exit()
-
 if __name__ == '__main__':
     try:
         main()

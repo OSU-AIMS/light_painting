@@ -36,43 +36,46 @@ If you solely used the Arduino script, you would need to have a user input to tu
 import py_to_ino_LIGHT_ON_OFF_test as arduino_led
 import image_inputs as input_image
 
+# ------------------------
+# Action Client
+
 
 def main():
     rospy.init_node('light_painting', anonymous=False)
     rospy.loginfo(">> light_painting Node sucessfully created")
 
-    binary_img = input_image.binary
+    img = input_image.binary
 
     ''' Testing how to extract individual pixels from binary image
-    print('binary_img[0]=',binary_img[0]) # [[255 255 255]] 1st row (0,1,2)
-    print('binary_img[1]=',binary_img[1]) # [[  0   0   0]] 
-    print('binary_img[2]=',binary_img[2]) # [[255 255 255]]
+    print('img[0]=',img[0]) # [[255 255 255]] 1st row (0,1,2)
+    print('img[1]=',img[1]) # [[  0   0   0]] 
+    print('img[2]=',img[2]) # [[255 255 255]]
     ## ^ show all 9 pixels values as a row vector of 3 elements
 
     # BELOW: this splits into individual pixels
     # Could (use the row,column) method to access pixel values for binary image
-    print('binary_img[0,0]=',binary_img[0,0]) # [255] Pixel 0 (3 items/pixel, starting index at 0)
-    print('binary_img[0,1]=',binary_img[0,1]) # [255] Pixel 1 
-    print('binary_img[0,2]=',binary_img[0,2]) # [255] Pixel 2
+    print('img[0,0]=',img[0,0]) # [255] Pixel 0 (3 items/pixel, starting index at 0)
+    print('img[0,1]=',img[0,1]) # [255] Pixel 1 
+    print('img[0,2]=',img[0,2]) # [255] Pixel 2
 
-    print('binary_img[1,0]=',binary_img[1,0]) # [255] Pixel 3
-    print('binary_img[1,1]=',binary_img[1,1]) # [0]   Pixel 4
-    print('binary_img[1,2]=',binary_img[1,2]) # [255] Pixel 5
+    print('img[1,0]=',img[1,0]) # [255] Pixel 3
+    print('img[1,1]=',img[1,1]) # [0]   Pixel 4
+    print('img[1,2]=',img[1,2]) # [255] Pixel 5
 
-    print('binary_img[2,0]=',binary_img[2,0]) # [255] Pixel 6
-    print('binary_img[2,1]=',binary_img[2,1]) # [255] Pixel 7
-    print('binary_img[2,2]=',binary_img[2,2]) # [255] Pixel 8
+    print('img[2,0]=',img[2,0]) # [255] Pixel 6
+    print('img[2,1]=',img[2,1]) # [255] Pixel 7
+    print('img[2,2]=',img[2,2]) # [255] Pixel 8
 
     # OR Use .item() to extract values from np.ndarray FOR BINARY
-    print('binary_img.item(0)',binary_img.item(0)) # [255] Pixel 0
-    print('binary_img.item(1)',binary_img.item(1)) # [255] Pixel 1
-    print('binary_img.item(2)',binary_img.item(2)) # [255] Pixel 2
-    print('binary_img.item(3)',binary_img.item(3)) # [255] Pixel 3
-    print('binary_img.item(4)',binary_img.item(4)) #   [0] Pixel 4
-    print('binary_img.item(5)',binary_img.item(5)) # [255] Pixel 5
-    print('binary_img.item(6)',binary_img.item(6)) # [255] Pixel 6
-    print('binary_img.item(7)',binary_img.item(7)) # [255] Pixel 7
-    print('binary_img.item(8)',binary_img.item(8)) # [255] Pixel 8
+    print('img.item(0)',img.item(0)) # [255] Pixel 0
+    print('img.item(1)',img.item(1)) # [255] Pixel 1
+    print('img.item(2)',img.item(2)) # [255] Pixel 2
+    print('img.item(3)',img.item(3)) # [255] Pixel 3
+    print('img.item(4)',img.item(4)) #   [0] Pixel 4
+    print('img.item(5)',img.item(5)) # [255] Pixel 5
+    print('img.item(6)',img.item(6)) # [255] Pixel 6
+    print('img.item(7)',img.item(7)) # [255] Pixel 7
+    print('img.item(8)',img.item(8)) # [255] Pixel 8
     '''
     
     ''' # Section of Code to test the LED & reading img & testing to see if LED turns/off at the right pixel location
@@ -80,9 +83,9 @@ def main():
     pixels = np.array([0,1,2,3,4,5,6,7,8])
     print('Number of pixels',pixels)
     for i in pixels:
-        if binary_img.item(i) == 255:
+        if img.item(i) == 255:
             print('Pixel Number:=',i)
-            print('Pixel Value:=',binary_img.item(i))
+            print('Pixel Value:=',img.item(i))
             print('LED ON')
             print(arduino.readline())             #read the serial data and print it as line
             # time.sleep(0.5)
@@ -90,7 +93,7 @@ def main():
             time.sleep(1.5)
         else:
             print('Pixel Number:=',i)
-            print('Pixel Value:=',binary_img.item(i))
+            print('Pixel Value:=',img.item(i))
             print('LED OFF')
             print(arduino.readline())             #read the serial data and print it as line
             # time.sleep(0.5)
@@ -103,8 +106,8 @@ def main():
     PSEUDOCODE FOR Robot motion to follow image
     - Robot makes first move; move = 1
     - if move = 1
-        then go to binary_img[0,0] & compare each item in that pixel using 
-        if binary_img.item()==255, then LED turns on
+        then go to img[0,0] & compare each item in that pixel using 
+        if img.item()==255, then LED turns on
     move =+ 1
     continue on till 9 moves are made for each pixel.
 
@@ -114,9 +117,9 @@ def main():
     reading the value from the image each time. 
     '''
 
-    print("Binary: number of rows along horizontal",np.size(input_image.binary,0))
+    print("Binary: number of rows along horizontal",np.size(img,0))
     # # Above and below print statements obtain size of image
-    print("Binary: number of columns along Vertical",np.size(input_image.binary,1))
+    print("Binary: number of columns along Vertical",np.size(img,1))
 
     
     '''
@@ -192,10 +195,10 @@ def main():
     # set 1 inch = 1 pixel?
 
     # Box length (m)
-    IMAGE_WIDTH = np.size(binary_img,0) 
+    IMAGE_WIDTH = np.size(img,0) 
     # print('Length of image',IMAGE_WIDTH # =3
     # set this to length of input image = np.size(input_image.binary,0) = 3
-    IMAGE_HEIGHT = np.size(binary_img,1)
+    IMAGE_HEIGHT = np.size(img,1)
      # set this to height of input image = 3
     # print('Height of image',IMAGE_HEIGHT) #=3
     PIXEL_COUNT = IMAGE_WIDTH*IMAGE_HEIGHT
@@ -241,24 +244,24 @@ def main():
         # Turn LED ON/OFF depending upon pixel value
         rc.execute_plan(plan)
 
-        if binary_img.item(i) == 0: 
+        if img.item(i) == 0: 
             print('i: Robot Movement number:',i)
             print('i: Pixel index number:',i)
-            print('binary_img.item(i)=',binary_img.item(i))
+            print('img.item(i)=',img.item(i))
             # print(arduino.readline())             #read the serial data and print it as line
             arduino_led.led_OFF()
             time.sleep(0.5)
         else:
             print('i: Robot Movement number:',i)
             print('i: Pixel index number=',i)
-            print('binary_img.item(i)',binary_img.item(i))
+            print('img.item(i)',img.item(i))
             # print(arduino.readline())             #read the serial data and print it as line
             # time.sleep(3)
             arduino_led.led_ON()
             time.sleep(0.5)
             arduino_led.led_OFF() # Turns off after every movement
 
-            # if binary_img.item(i) == 2 or 5 or 8: 
+            # if img.item(i) == 2 or 5 or 8: 
             #     # item 2,5,8 are the edge pixels. 
             #     # since we are going sequentially 0>1>2>3. 
             # Once light reaches edge pixel, it will move across the image
