@@ -101,6 +101,7 @@ def main():
             print('reset to next row')
             print("Pixel on row {}" .format(i))
             wpose = rc.move_group.get_current_pose().pose
+            sendRGB2LED(pub_rgb_values) 
             waypoints = nextRow(wpose)
 
         if move_robot:
