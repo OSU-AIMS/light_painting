@@ -50,6 +50,12 @@ def main():
     sendRGB2LED(pub_rgb_values, b=255)
     rospy.sleep(2)
 
+
+    rospy.loginfo("White")
+    sendRGB2LED(pub_rgb_values, r=255,g=255,b=255)
+    rospy.sleep(2)
+
+
     rospy.loginfo("Off")
     sendRGB2LED(pub_rgb_values)
 
