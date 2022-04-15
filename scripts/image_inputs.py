@@ -39,7 +39,10 @@ RGB = cv2.cvtColor(BGR,cv2.COLOR_BGR2RGB)
 # radial_9x9 = 'radial_gradient_9x9.tif'
 # sweep_10x11 = 'sweep_10x11.tif'
 # sweep_10x11 = 'sweep_10x11.tif'
-sweep_8x5= 'sweep_8x5.tif'
-GS = cv2.imread(join(GRAYSCALE,sweep_8x5),0)
+# sweep_8x5= 'sweep_8x5.tif'
+gauss = 'gauss_1x10.tif'
+
+# cloud = 'cloud_16x16.tif'
+GS = cv2.imread(join(GRAYSCALE,gauss),0)
 
 

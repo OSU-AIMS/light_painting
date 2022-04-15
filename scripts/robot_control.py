@@ -151,7 +151,7 @@ class moveManipulator(object):
         
         plan = self.move_group.retime_trajectory(moveit_commander.RobotCommander().get_current_state(),
                                         plan,
-                                        velocity_scaling_factor=0.2)
+                                        velocity_scaling_factor=0.1)
         
         # For reducing robot speed: https://answers.ros.org/question/376226/how-to-decrease-the-speed-of-my-robot/
         # As of 3/21: seems to work.

@@ -46,7 +46,7 @@ col = range(IMAGE_WIDTH) # [0,1,2]
 MOTION_BOX_WIDTH =  IMAGE_WIDTH*MOTION_BOX_scale # m
 MOTION_BOX_HEIGHT = IMAGE_HEIGHT*MOTION_BOX_scale # m
 
-TIME_GRAY_SCALE = .5/255
+TIME_GRAY_SCALE = 20/255
 
 # Starting positions for robot
 z_start = 1 # m
@@ -136,13 +136,13 @@ def main():
                 # sendGrayScale2LED(pub_GS_values,v) # sends publisher handle & r,g,b values to RGB Led Via ROS
                 sendRGB2LED(pub_GS_values,v,v,v) # sends publisher handle & r,g,b values to RGB Led Via ROS
 
-                # time.sleep(v*TIME_GRAY_SCALE) # Delay keeps light on/off for certain amount of time for consistent lumosity
+                time.sleep(v*TIME_GRAY_SCALE) # Delay keeps light on/off for certain amount of time for consistent lumosity
 
                 # sendGrayScale2LED(pub_GS_values) 
-                # sendRGB2LED(pub_GS_values) 
+                sendRGB2LED(pub_GS_values) 
 
                 # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
-                # time.sleep(0.25)                 
+                time.sleep(0.25)                 
                      
 
                 # sendRGB2LED(pub_rgb_values,v,v,v)
