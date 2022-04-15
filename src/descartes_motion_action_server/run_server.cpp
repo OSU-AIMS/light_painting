@@ -49,6 +49,9 @@ class SimpleMover {
     light_painting::SimpleMoveRequestFeedback feedback_;
     light_painting::SimpleMoveRequestResult result_;
 
+    /* Joint State */
+    sensor_msgs::JointStateConstPtr current_state_ptr;
+
 
   public:
 
@@ -156,7 +159,7 @@ class SimpleMover {
     /* Get Current Pose */
     Eigen::Isometry3d CalcCurrentPose(const std::string jointTopic = "/joint_states")
     {
-      sensor_msgs::JointStateConstPtr current_state_ptr = ros::topic::waitForMessage<sensor_msgs::JointState>(jointTopic, ros::Duration(2));
+      current_state_ptr = ros::topic::waitForMessage<sensor_msgs::JointState>(jointTopic, ros::Duration(1));
       Eigen::Isometry3d pattern_origin = Eigen::Isometry3d::Identity();
       
       model->getFK(current_state_ptr->position, pattern_origin);
@@ -174,6 +177,7 @@ class SimpleMover {
     /* Private Function Declarations */
     descartes_core::TrajectoryPtPtr makeCartesianPoint(const Eigen::Isometry3d& pose, double dt);
     descartes_core::TrajectoryPtPtr makeTolerancedCartesianPoint(const Eigen::Isometry3d& pose, double dt);
+    descartes_core::TrajectoryPtPtr makeJointPoint(const std::vector<double> &joints, double dt);
     std::vector<descartes_core::TrajectoryPtPtr> makeStraightPath(
       Eigen::Isometry3d pattern_start = Eigen::Isometry3d::Identity(),
       Eigen::Isometry3d pattern_end = Eigen::Isometry3d::Identity(),
@@ -228,6 +232,13 @@ descartes_core::TrajectoryPtPtr SimpleMover::makeTolerancedCartesianPoint(const 
   return TrajectoryPtPtr( new AxialSymmetricPt(pose, M_PI / 12.0, AxialSymmetricPt::Z_AXIS, TimingConstraint(dt)) );
 }
 
+descartes_core::TrajectoryPtPtr SimpleMover::makeJointPoint(const std::vector<double> &joints, double dt)
+{
+  using namespace descartes_core;
+  using namespace descartes_trajectory;
+  return TrajectoryPtPtr( new JointTrajectoryPt(joints, TimingConstraint(dt)) );
+}
+
 
 
 // ----------------------
@@ -259,8 +270,9 @@ std::vector<descartes_core::TrajectoryPtPtr> SimpleMover::makeStraightPath(Eigen
   }
 
   // Ensure first trajectory point is at exact start
+  descartes_core::TrajectoryPtPtr pt = makeJointPoint(current_state_ptr->position, 0.01);
+
   std::vector<descartes_core::TrajectoryPtPtr> result;
-  descartes_core::TrajectoryPtPtr pt = makeCartesianPoint(pattern_start, 0.01);
   result.push_back(pt);
 
   // Assemble path as list of Descartes Points
