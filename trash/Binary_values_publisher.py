@@ -23,7 +23,6 @@ import sys
 # ROS Data Types
 from light_painting.msg import BinaryState
 from light_painting.msg import RGBState
-from RGB_values_publisher import sendRGB2LED
 
 
 def main():

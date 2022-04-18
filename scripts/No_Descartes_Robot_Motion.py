@@ -27,8 +27,12 @@ Script does not use Descartes. Solely ROS MoveIt planner
 
 #------------------------ Global Variables -----------------
 MOTION_BOX_scale = 0.01 # m 
-# import image
+
+########################### Change this based on image input --------------------------------------
+# image imports
 img = input_image.RGB
+# img = input_image.GS
+# img = input_image.binary
 
 # Box length (m)
 IMAGE_HEIGHT = np.size(img,0) 
@@ -43,6 +47,8 @@ col = range(IMAGE_WIDTH) # [0,1,2]
 MOTION_BOX_WIDTH =  IMAGE_WIDTH*MOTION_BOX_scale # m
 MOTION_BOX_HEIGHT = IMAGE_HEIGHT*MOTION_BOX_scale # m
 
+# Variable time for Grayscale
+TIME_GRAY_SCALE = 20/255 # 20 sec delay for pixel value of 25
 
 
 # Starting positions for robot
@@ -65,18 +71,22 @@ def nextColumn(wpose):
     waypoints.append(copy.deepcopy(wpose))
     return waypoints
 
+
 def main():
+
+    # input(f"To Continue press <enter>")
 
     move_robot = True # set equal to False to not move robot
 
-    # Setup
-    pixel_value = pixel_value_publisher()
-
     # init node & Publishers
-    pub_rgb_values = rospy.Publisher('/paintbrush',RGBState, queue_size=5)       
+    pub_pixel_values = rospy.Publisher('/paintbrush',RGBState, queue_size=5)       
     rospy.init_node('van gogh')
     rospy.loginfo(">>van gogh node successfully created")
     rospy.Rate(1)
+
+
+     # initialize class
+    pixel_value = pixel_value_publisher(pub_pixel_values)
     
     # Initialize Robot Model
     rc= moveManipulator('mh5l')
@@ -106,20 +116,26 @@ def main():
             print('reset to next row')
             print("Pixel on row {}" .format(i))
             wpose = rc.move_group.get_current_pose().pose
-            pixel_value.RGB_img(pub_rgb_values)
-            #sendRGB2LED(pub_rgb_values) 
-            waypoints = nextRow(wpose)
+
+            if img.any() != None: # checks if the img is grayscale or RGB automatically & access appropriate function
+                if(len(img.shape)<3):
+                        # print('len(img.shape)',len(img.shape))
+                        print ('grayscale or binary')
+                        pixel_value.Binary_or_GS_img()
+                        waypoints = nextRow(wpose)
+                elif len(img.shape)==3:
+                        print ('Colored(RGB)')
+                        pixel_value.RGB_img()
+                        waypoints = nextRow(wpose)
+                else:
+                    print("cannot find image")  
 
         if move_robot:
             plan, fraction = rc.plan_cartesian_path(waypoints)
             rc.execute_plan(plan)
-
             
         for j in col:
-            print("Pixel on row {} and col {}" .format(i,j))
-            r,g,b = img[i,j].astype('uint8')
-            # v = img[i,j].astype('uint8')
-            
+            print("Pixel on row {} and col {}" .format(i,j))           
 
             if j != 0: 
                 # if not initial column, keep moving horizontally
@@ -132,20 +148,55 @@ def main():
             if move_robot:
                 plan, fraction = rc.plan_cartesian_path(waypoints)
                 rc.execute_plan(plan)
-                # sendRGB2LED(pub_rgb_values,r,g,b) # sends publisher handle & r,g,b values to RGB Led Via ROS
 
-            delay =0.5
-            print('Delay (sec):',delay)
+            if img.any() != None: # checks if the img is grayscale or RGB automatically & access appropriate function
+                if(len(img.shape)<3):
+                    # print('len(img.shape)',len(img.shape))
+                    print ('grayscale or binary img read')
+
+
+                    delay_GS =v*TIME_GRAY_SCALE
+                    print('Delay (sec):',delay_GS)
+                    v = img[i,j].astype('uint8') # for Binary & GrayScale images
+                    pixel_value.Binary_or_GS_img(v)
+                    time.sleep(delay_GS)
+
+                    # Turn of RGB
+                    pixel_value.Binary_or_GS_img()
+                    time.sleep(0.05)
+
+                    waypoints = nextRow(wpose)
+                elif len(img.shape)==3:
+                    print ('Colored(RGB) img')
+
+                    delay =0.5
+                    print('Delay (sec):',delay)
+                    r,g,b = img[i,j].astype('uint8')
+                    pixel_value.RGB_img(r,g,b)
+                    time.sleep(delay) # Delay keeps light on/off for certain amount of time for consistent lumosity
+                    
+                    # Turn off RGB
+                    pixel_value.RGB_img() # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
+                    time.sleep(0.05) 
+                else:
+                    print("cannot find image")  
             
-            pixel_value.RGB_img(pub_rgb_values,r,g,b)
-            time.sleep(delay) # Delay keeps light on/off for certain amount of time for consistent lumosity
-            
-            pixel_value.RGB_img(pub_rgb_values)
-            # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
-            time.sleep(0.05) 
+
+
     if move_robot:
-        pixel_value.RGB_img(pub_rgb_values)
-        rc.goto_all_zeros()
+        if img.any() != None: 
+            # checks if the img is grayscale or RGB automatically & access appropriate function
+            if(len(img.shape)<3):
+                # print ('grayscale or binary img')
+                pixel_value.Binary_or_GS_img()
+                rc.goto_all_zeros()
+            elif len(img.shape)==3:
+                # print ('Colored(RGB)')
+                pixel_value.RGB_img() # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
+                rc.goto_all_zeros()
+            else:
+                print("cannot find image")  
+
 
 
     try:
