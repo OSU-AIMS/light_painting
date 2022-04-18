@@ -2,7 +2,7 @@
 
 from pickle import TRUE
 import rospy
-from robot_control import * 
+from robotControl_moveit import * 
 import copy
 from geometry_msgs.msg import Pose
 
@@ -308,7 +308,7 @@ def TRASH(): # nothing to see in this function folks, nothing to see
     Need to figure out:
     - the spacing between the pixels.
     - 1 pixel = ?? inches (or meters)
-    - Reduce robot velocity to 10% --> reduced see robot_control script (as of 3/21)
+    - Reduce robot velocity to 10% --> reduced see robotControl_moveit script (as of 3/21)
     - Fix trajectory error: "Validation failed: Trajectory doesn't start at current position."
     - Fix Trajectory error: "Validation failed: Missing velocity data for trajectory pt 0"
     '''

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
-from robot_control import * 
+from robotControl_moveit import * 
 import copy
 from geometry_msgs.msg import Pose
 
