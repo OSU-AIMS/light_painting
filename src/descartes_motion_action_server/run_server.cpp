@@ -90,6 +90,9 @@ class SimpleMover {
       {
         ROS_ERROR("Failed to initialize planner");
       }
+
+      // User Feedback
+      ROS_INFO("SimpleMove server initialized and ready.");
     }
 
     ~SimpleMover(void) {}
