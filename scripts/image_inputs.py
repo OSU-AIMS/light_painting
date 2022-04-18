@@ -12,7 +12,7 @@ BINARY = join(RESOURCES,'binary') # combine image folder location with binary
 GRAYSCALE = join(RESOURCES,'grayscale') 
 R_G_B = join(RESOURCES,'RGB') 
 
-#Binary Images:
+########### Binary Images:###################
 white_rim4x3 = 'white_rim_4x3.tif'
 white_rim3x3 = 'white_rim_3x3.tif'
 blockO = 'block-O_10x10.tif'
@@ -22,7 +22,7 @@ binary = cv2.imread(join(BINARY,white_rim3x3),0)
 # binary = cv2.imread(join(BINARY,blockO),0)
 # binary = cv2.imread(join(BINARY,aims),0)
 
-#RGB images:
+################### RGB images: #####################
 green_cross = 'green_cross.tif' # 3x3 image
 blockO_rgb = 'block_o_RGB.tif' # 10x10 image
 
@@ -32,7 +32,7 @@ RGB = cv2.cvtColor(BGR,cv2.COLOR_BGR2RGB)
 # BGR = cv2.imread(join(R_G_B,blockO_rgb))
 # RGB = cv2.cvtColor(BGR,cv2.COLOR_BGR2RGB)
 
-# GrayScale
+################# GrayScale Images ##################
 # sweep_10x20 = 'sweep.tif'
 # sweep_3x3 = 'sweep_3x3.tif'
 # sweep_3x5 = 'sweep_3x5.tif'

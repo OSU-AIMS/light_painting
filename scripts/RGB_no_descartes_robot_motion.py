@@ -19,9 +19,6 @@ from RGB_values_publisher import sendRGB2LED
 #Custom Message
 from light_painting.msg import RGBState
 
-# -----------------------------
-# Script uses ROS Publisher to communicate with Arduino.
-# Script uses ROS built in MoveIt Cartesian Motion planner. NOT DESCARTES
 
 #------------------------ Global Variables -----------------
 MOTION_BOX_scale = 0.01 # m 
@@ -111,7 +108,6 @@ def main():
             
         for j in col:
             print("Pixel on row {} and col {}" .format(i,j))
-            
             r,g,b = img[i,j].astype('uint8')
             # v = img[i,j].astype('uint8')
             
@@ -131,11 +127,16 @@ def main():
 
             delay =0.5
             print('Delay (sec):',delay)
+            
             sendRGB2LED(pub_rgb_values,r,g,b) # sends publisher handle & r,g,b values to RGB Led Via ROS
             time.sleep(delay) # Delay keeps light on/off for certain amount of time for consistent lumosity
+            
             sendRGB2LED(pub_rgb_values) 
             # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
             time.sleep(0.05) 
+    if move_robot:
+        sendRGB2LED(pub_rgb_values)
+        rc.goto_all_zeros()
     try:
         rospy.spin()
     except KeyboardInterrupt:
