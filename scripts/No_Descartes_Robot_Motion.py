@@ -79,7 +79,7 @@ def main():
     move_robot = True # set equal to False to not move robot
 
     # init node & Publishers
-    pub_pixel_values = rospy.Publisher('/paintbrush',RGBState, queue_size=5)       
+    pub_pixel_values = rospy.Publisher('/paintbrush_color', RGBState, queue_size=5)       
     rospy.init_node('monet')
     rospy.loginfo(">>monet node successfully created")
     rospy.Rate(10)
