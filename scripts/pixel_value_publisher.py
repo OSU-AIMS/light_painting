@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 
-import queue
-from turtle import pu
-import cv2
 import rospy
-import numpy as np
-import sys
 
 # ROS Data Types
 from light_painting.msg import RGBState #only need this msg
@@ -74,5 +69,4 @@ def main():
         rospy.spin()
     except KeyboardInterrupt:
         print("Shutting down")
-    cv2.destroyAllWindows()
 

@@ -25,20 +25,29 @@ Script does not use Descartes. Solely ROS MoveIt planner
 """
 
 
-#------------------------ Global Variables -----------------
-MOTION_BOX_scale = 0.01 # m 
+#######################
+## MOTION PARAMETERS ##
+#######################
 
-########################### Change this based on image input --------------------------------------
+MOTION_BOX_scale = 0.010 # m 
+
+
+
+#################
+## INPUT IMAGE ##
+#################
+
 # image imports
 img = input_image.RGB
 # img = input_image.GS
 # img = input_image.binary
 
 # Box length (m)
-IMAGE_HEIGHT = np.size(img,0) 
-print('height of image',IMAGE_HEIGHT)
-IMAGE_WIDTH = np.size(img,1)
-print('Width of image',IMAGE_WIDTH)
+IMAGE_HEIGHT = img.shape[0] 
+print('height of image/rows: ',IMAGE_HEIGHT)
+IMAGE_WIDTH = img.shape[1]
+print('Width of image/cols: ',IMAGE_WIDTH)
+print('Image Depth: ', img.shape[2])
 
 row = range(IMAGE_HEIGHT) # [0,1,2]
 col = range(IMAGE_WIDTH) # [0,1,2]
@@ -54,7 +63,11 @@ TIME_GRAY_SCALE = 2/255 #20/255 # Arbitrary time--20 sec delay for pixel value o
 # Starting positions for robot
 z_start = 1 # m - arbitrary height to get down elbow position more often
 y_start = -MOTION_BOX_WIDTH/2 # m
-#----------------------------------
+
+
+###############
+## FUNCTIONS ##
+###############
 
 def nextRow(wpose):
     # Purpose: moves robot to next row
@@ -72,11 +85,17 @@ def nextColumn(wpose):
     return waypoints
 
 
+
+##########
+## MAIN ##
+##########
+
 def main():
 
     # input(f"To Continue press <enter>")
 
     move_robot = True # set equal to False to not move robot
+
 
     # init node & Publishers
     pub_pixel_values = rospy.Publisher('/paintbrush_color', RGBState, queue_size=5)       
@@ -90,7 +109,7 @@ def main():
     pixel_value = pixel_value_publisher(pub_pixel_values)
     
     # Initialize Robot Model
-    rc= moveManipulator('mh5l')
+    rc = moveManipulator('mh5l')
     rc.set_vel(0.1)
     rc.set_accel(0.1)
 
@@ -108,7 +127,7 @@ def main():
     if move_robot:
         rc.goto_Pose(start_pose)
 
-    # Creating nested for loop to iteratre through all pixels
+    # Iterate through all pixels (row->col->px)
     for i in row:
         
         if i  != 0: # As long as i is not 0, then move to the next row.
