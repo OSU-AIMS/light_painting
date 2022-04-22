@@ -16,14 +16,9 @@ Initialize supporting functions
 roslaunch light_painting light_painting.launch
 ```
 
-Run a binary image:
+Run for RGB, Binary, or Grayscale images
 ```bash
-rosrun light_painting binary_no_descartes_robot_motion.py
-````
-
-Run an RGB image:
-```bash
-rosrun light_painting RGB_no_descartes_robot_motion.py
+rosrun light_painting No_Descartes_Robot_Motion.py
 ```
 
 
