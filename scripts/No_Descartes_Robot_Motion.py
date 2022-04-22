@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import rospy
-from robot_control import * 
+from robotControl_moveit import * 
 import copy
 from geometry_msgs.msg import Pose
+from robotControl_SimpleMover import SimpleMoverClient
 
 
 import time
@@ -91,7 +92,8 @@ def main():
 
     # input(f"To Continue press <enter>")
 
-    move_robot = True # set equal to False to not move robot
+    move_robot = True           # set equal to False to not move robot
+    planner = 'simplemover'     # Options: moveit or simplemover
 
 
     # init node & Publishers
@@ -104,6 +106,7 @@ def main():
     # initialize class
     # pub_handle is a parameter for the class
     pixel_value = pixel_value_publisher(pub_pixel_values)
+    smc = SimpleMoverClient()
     
     # Initialize Robot Model
     rc = moveManipulator('mh5l')
@@ -122,7 +125,10 @@ def main():
     start_pose.position.y = y_start
 
     if move_robot:
-        rc.goto_Pose(start_pose)
+        # rc.goto_Pose(start_pose)
+
+        result = smc.setNewGoal(start_pose, 4)
+        rospy.loginfo("Result: %s", str(result))
 
     # Iterate through all pixels (row->col->px)
     for i in row:
@@ -144,10 +150,31 @@ def main():
                 else:
                     print("ERROR: cannot find image")  
 
-        if move_robot:
-            plan, fraction = rc.plan_cartesian_path(waypoints)
-            rc.execute_plan(plan)
+
+            ## Motion Control
+            if move_robot and planner == 'moveit':
+                plan, fraction = rc.plan_cartesian_path(waypoints)
+                rc.execute_plan(plan)
             
+            elif move_robot and planner == 'simplemover':
+
+                goal = Pose()
+
+                goal.position.x = waypoints[0].position.x
+                goal.position.y = waypoints[0].position.y
+                goal.position.z = waypoints[0].position.z
+
+                goal.orientation.x = waypoints[0].orientation.x
+                goal.orientation.y = waypoints[0].orientation.y
+                goal.orientation.z = waypoints[0].orientation.z
+                goal.orientation.w = waypoints[0].orientation.w
+
+                # Send Pose Goal
+                result = smc.setNewGoal(goal, 3)
+                rospy.loginfo("Result: %s", str(result))
+        
+        
+
         for j in col: # Start iterating through Rows
             # print("Pixel on row {} and col {}" .format(i,j))           
 
@@ -158,10 +185,31 @@ def main():
                 wpose = rc.move_group.get_current_pose().pose
                 waypoints = nextColumn(wpose)
 
-            # input(f"Cartesian Plan {i}: press <enter>") # uncomment this line if you want robot to run automatically
-            if move_robot:
-                plan, fraction = rc.plan_cartesian_path(waypoints)
-                rc.execute_plan(plan)
+                # input(f"Cartesian Plan {i}: press <enter>") # uncomment this line if you want robot to run automatically
+                ## Motion Control
+                if move_robot and planner == 'moveit':
+                    plan, fraction = rc.plan_cartesian_path(waypoints)
+                    rc.execute_plan(plan)
+                
+                elif move_robot and planner == 'simplemover':
+
+                    goal = Pose()
+
+                    goal.position.x = waypoints[0].position.x
+                    goal.position.y = waypoints[0].position.y
+                    goal.position.z = waypoints[0].position.z
+
+                    goal.orientation.x = waypoints[0].orientation.x
+                    goal.orientation.y = waypoints[0].orientation.y
+                    goal.orientation.z = waypoints[0].orientation.z
+                    goal.orientation.w = waypoints[0].orientation.w
+
+                    # Send Pose Goal
+                    result = smc.setNewGoal(goal, 3)
+                    rospy.loginfo("Result: %s", str(result))
+                
+                
+
 
             if img.any() != None: # checks if the img is grayscale or RGB automatically & access appropriate function
                 if(len(img.shape)<3): # For Binary & GrayScale Images
