@@ -21,6 +21,15 @@ Run for RGB, Binary, or Grayscale images
 rosrun light_painting No_Descartes_Robot_Motion.py
 ```
 
+To add images: 
+```
+image_inputs.py
+```
+To view publisher:
+```
+pixel_value_publisher.py
+```
+
 
 ### Dependencies
 
