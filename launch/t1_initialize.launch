@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+    <!-- Launch Parameters -->
+    <arg name="sim" default="true" />
+    <arg name="arduino_port" default="/dev/ttyACM0" />
+
+
+    <!-- Arduino Connection (only if on real hardware) -->
+    <node pkg="rosserial_python" type="serial_node.py" name="serial_node" respawn="true" unless="$(arg sim)" >
+        <param name="port" value="$(arg arduino_port)" />
+        <param name="baud" value="500000" /> <!-- Baud must match hardcoded value on Arduino -->
+    </node>
+
+
+    <!-- Initialize Robot -->
+    <include file="$(find aims_wc2_pgn64_moveit_config)/launch/moveit_planning_execution.launch" >
+        <arg name="sim" value="$(arg sim)"/>
+        <arg name="robot_ip" value="mh5l.aims.lan" unless="$(arg sim)" />
+    </include>
+
+
+    <!-- Initialize SimpleMover Action Server (descartes wrapper) -->
+    <node pkg="light_painting" type="single_move_action" name="single_move_action" respawn="true" />
+
+
+    <!-- Visualization -->
+    <node name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false" args = "-d $(find light_painting)/config/moveit.rviz" />
+
+
+</launch>
