@@ -15,7 +15,7 @@ import numpy as np
 
 # Custom Scripts
 import image_inputs as input_image
-from pixel_value_publisher import pixel_value_publisher
+from paintPublisher import paintPublisher
 
 #Custom Message
 from light_painting.msg import RGBState
@@ -105,7 +105,7 @@ def main():
 
     # initialize class
     # pub_handle is a parameter for the class
-    pixel_value = pixel_value_publisher(pub_pixel_values)
+    pixel_value = paintPublisher(pub_pixel_values)
     smc = SimpleMoverClient()
     
     # Initialize Robot Model
@@ -141,11 +141,11 @@ def main():
             if img.any() != None: # checks if the img is grayscale or RGB automatically & access appropriate function
                 if(len(img.shape)<3): # For Grayscale & Binary Images
                     print('next row')
-                    pixel_value.Binary_or_GS_img()
+                    pixel_value.setGrayMsg()
                     waypoints = nextRow(wpose)
                 elif len(img.shape)==3: # For RGB images
                     print('next row')                
-                    pixel_value.RGB_img()
+                    pixel_value.setColorMsg()
                     waypoints = nextRow(wpose)
                 else:
                     print("ERROR: cannot find image")  
@@ -219,12 +219,12 @@ def main():
                     delay_GS =v*TIME_GRAY_SCALE
                     print('Delay(sec):',delay_GS)
                     
-                    pixel_value.Binary_or_GS_img(v)
+                    pixel_value.setGrayMsg(v)
                     time.sleep(delay_GS)
 
                     # Turn off RGB LED
                     print('Turn off RGB LED')
-                    pixel_value.Binary_or_GS_img()
+                    pixel_value.setGrayMsg()
                     time.sleep(0.05)
 
                 elif len(img.shape)==3: # For RGB images
@@ -232,12 +232,12 @@ def main():
                     print('Delay(sec):',delay)
                     r,g,b = img[i,j].astype('uint8')
                     print("Pixel value: Red {}, Green {}, Blue {}" .format(r,g,b))
-                    pixel_value.RGB_img(r,g,b)
+                    pixel_value.setColorMsg(r,g,b)
                     time.sleep(delay) # Delay keeps light on/off for certain amount of time for consistent lumosity
                     
                     # Turn off RGB
                     print('Turn off RGB LED')
-                    pixel_value.RGB_img() # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
+                    pixel_value.setColorMsg() # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
                     time.sleep(0.05) 
                 else:
                     print("ERROR: cannot find image")  
@@ -246,10 +246,10 @@ def main():
         if img.any() != None: 
             # checks if the img is grayscale or RGB automatically & access appropriate function
             if(len(img.shape)<3):#  For ('grayscale or binary img')
-                pixel_value.Binary_or_GS_img()
+                pixel_value.setGrayMsg()
                 rc.goto_all_zeros()
             elif len(img.shape)==3:#  For ('Colored(RGB)')
-                pixel_value.RGB_img() # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
+                pixel_value.setColorMsg() # by default r,g,b=0 in sendRGB2LED() function, sending just pub handle, turns off RGB
                 rc.goto_all_zeros()
             else:
                 print("ERROR: cannot find image")  

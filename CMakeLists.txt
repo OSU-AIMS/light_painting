@@ -36,8 +36,6 @@ add_action_files(
 add_message_files(
   FILES
   RGBState.msg
-  BinaryState.msg
-  GrayScale.msg
 )
 
 generate_messages(
