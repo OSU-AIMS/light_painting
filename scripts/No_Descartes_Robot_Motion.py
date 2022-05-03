@@ -53,6 +53,7 @@ from paintPublisher import paintPublisher
 #######################
 
 image_scale = 0.010 # m 
+TIME_GRAY_SCALE = 2/255 #20/255 # Arbitrary time--20 sec delay for pixel value of 25
 
 #################
 ## INPUT IMAGE ##
@@ -66,10 +67,16 @@ canvas = imageLoader('grayscale/cloud_16x16.tif', scale=image_scale, color=False
 z_start = 1 # m - arbitrary height to get down elbow position more often
 y_start = -canvas.width/2 # m
 
-
 ###############
 ## FUNCTIONS ##
 ###############
+
+
+
+
+###################
+## OLD FUNCTIONS ##
+###################
 
 def nextRow(wpose):
     # Purpose: moves robot to next row
