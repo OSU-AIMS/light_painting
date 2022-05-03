@@ -1,31 +1,51 @@
 #!/usr/bin/env python3
+#
+# Software License Agreement (Apache 2.0 License)
+# Copyright (c) 2022, The Ohio State University
+# The Artificially Intelligent Manufacturing Systems Lab (AIMS)
+#
+# Author: M. Khan, A.C. Buynak
+#
+# Description:
+# 
+# 
+# 
 
-import rospy
-from robotControl_moveit import * 
-import copy
-from geometry_msgs.msg import Pose
-from robotControl_SimpleMover import SimpleMoverClient
 
 
-import time
-
-# For Image Manipulation
-import cv2
-import numpy as np
-
-# Custom Scripts
-import rospy
-from geometry_msgs.msg import Pose
-from imageLoader import imageLoader
-from paintPublisher import paintPublisher
-
-#Custom Message
-from light_painting.msg import RGBState
 """
 Script does not use Descartes. Solely ROS MoveIt planner
 - Uses image Processing Class
 - Robot is inclined to do extraneous motion
 """
+
+
+
+###########
+# Imports #
+###########
+
+# Utilities
+import copy
+import time
+
+# Image Manipulation
+import cv2
+import numpy as np
+
+# ROS
+import rospy
+from geometry_msgs.msg import Pose
+from light_painting.msg import RGBState
+
+# Motion Planners
+from robotControl_SimpleMover import SimpleMoverClient
+from robotControl_moveit import * 
+
+# Support Classes
+from imageLoader import imageLoader
+from paintPublisher import paintPublisher
+
 
 
 #######################
