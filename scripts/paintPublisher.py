@@ -6,7 +6,7 @@ import rospy
 from light_painting.msg import RGBState
 
 
-class paintPublisher(object):
+class paintPublisher():
     """
     Convience class for assembling and publishing a RGB or Grayscale image publisher.
     Class must be initialized with an existing ROS publisher object.

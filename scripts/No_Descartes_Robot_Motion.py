@@ -14,7 +14,9 @@ import cv2
 import numpy as np
 
 # Custom Scripts
-import image_inputs as input_image
+import rospy
+from geometry_msgs.msg import Pose
+from imageLoader import imageLoader
 from paintPublisher import paintPublisher
 
 #Custom Message
@@ -30,37 +32,19 @@ Script does not use Descartes. Solely ROS MoveIt planner
 ## MOTION PARAMETERS ##
 #######################
 
-MOTION_BOX_scale = 0.010 # m 
+image_scale = 0.010 # m 
 
 #################
 ## INPUT IMAGE ##
 #################
 
-# image imports
-# img = input_image.RGB
-# img = input_image.GS
-img = input_image.binary
+canvas = imageLoader('grayscale/cloud_16x16.tif', scale=image_scale, color=False)
 
-# Box length (m)
-IMAGE_HEIGHT = img.shape[0] 
-print('height of image/rows: ',IMAGE_HEIGHT)
-IMAGE_WIDTH = img.shape[1]
-print('Width of image/cols: ',IMAGE_WIDTH)
-
-row = range(IMAGE_HEIGHT) # [0,1,2]
-col = range(IMAGE_WIDTH) # [0,1,2]
-
-# real world box size
-MOTION_BOX_WIDTH =  IMAGE_WIDTH*MOTION_BOX_scale # m
-MOTION_BOX_HEIGHT = IMAGE_HEIGHT*MOTION_BOX_scale # m
-
-# Variable time for Grayscale
-TIME_GRAY_SCALE = 2/255 #20/255 # Arbitrary time--20 sec delay for pixel value of 25
 
 
 # Starting positions for robot
 z_start = 1 # m - arbitrary height to get down elbow position more often
-y_start = -MOTION_BOX_WIDTH/2 # m
+y_start = -canvas.width/2 # m
 
 
 ###############
