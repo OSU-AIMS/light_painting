@@ -31,7 +31,7 @@ class paintPublisher():
         msg.green = int(v)
         msg.blue = int(v)
         self.pub_handle.publish(msg)
-        rospy.loginfo('Published Grayscale msg: Published msg: Red {},Blue {}, Green {}'.format(msg.red,msg.green,msg.blue))
+        rospy.loginfo('Published Grayscale msg: Published msg: Red {}, Blue {}, Green {}'.format(msg.red,msg.green,msg.blue))
 
         return 1
 
@@ -52,6 +52,6 @@ class paintPublisher():
         msg.blue = int(b)
 
         self.pub_handle.publish(msg)
-        rospy.loginfo('Published RGB msg: Red {},Blue {}, Green {}'.format(msg.red,msg.green,msg.blue))
+        rospy.loginfo('Published RGB msg: Red {}, Blue {}, Green {}'.format(msg.red,msg.green,msg.blue))
 
         return 1
