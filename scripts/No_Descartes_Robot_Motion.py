@@ -35,7 +35,7 @@ import numpy as np
 
 # ROS
 import rospy
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Transform, Pose
 from light_painting.msg import RGBState
 
 # Motion Planners
@@ -70,6 +70,22 @@ def main():
 
     # Load Image
     canvas = imageLoader('grayscale/cloud_16x16.tif', scale=image_scale, color=False)
+
+    # Calculate Local Raster Path across Image
+    path_wrt_canvas = canvas.generateLocalPathPlan()
+
+    # Transform Canvas Origin (meters)
+    canvas_origin = Transform()
+    canvas_origin.translation.x = 0.5
+    canvas_origin.translation.y = -canvas.width/2
+    canvas_origin.translation.z = 1
+    canvas_origin.rotation.x = 0
+    canvas_origin.rotation.y = 0.70711
+    canvas_origin.rotation.z = 0
+    canvas_origin.rotation.w = 0.70711
+
+    path_wrt_fixed = canvas.transformLocalPath(canvas_origin, 'base_link')
+
 
 
 

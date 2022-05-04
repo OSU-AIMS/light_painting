@@ -19,8 +19,11 @@ from os.path import join
 
 import rospy
 import rospkg
-from std_msgs.msg import Header
-from geometry_msgs.msg import Pose, PoseArray
+from std_msgs.msg import String
+from geometry_msgs.msg import Pose, PoseStamped, PoseArray, Transform, TransformStamped
+
+# Transforms
+import tf2_geometry_msgs
 
 import numpy as np
 
@@ -43,7 +46,7 @@ class imageLoader():
         """
 
         self.scale = scale
-        self.path = PoseArray()
+        self.local_path = PoseArray()
 
         # Absolute Filepaths
         rospack = rospkg.RosPack()
@@ -69,7 +72,7 @@ class imageLoader():
         rospy.loginfo("Width of Image (# cols): ", self.width)
 
 
-    def generatePathPlan(self):
+    def generateLocalPathPlan(self) -> PoseArray:
         """
         Generate a raster path plan moving through each pixel in the image.
         """
@@ -97,8 +100,48 @@ class imageLoader():
             del myPose
 
         # Exports
-        self.path = myPath
-        return self.path
+        self.local_path = myPath
+        return self.local_path
+
+
+    def transformLocalPath(self, transform: Transform, parentFrame: String = 'base_link') -> PoseArray:
+        """
+        Transform local path defined with respect to CANVAS into input PARENT FRAME.
+        :param String parentFrame: Name of parent tf2 coordinate frame 
+        :param Transform transform: Transform from input 'parentFrame' to Canvas Origin
+        :return: PoseArray
+        """
+        
+        tf_stamped = TransformStamped()
+        tf_stamped.header.frame_id = parentFrame
+        tf_stamped.child_frame_id = 'canvas'
+        tf_stamped.transform = transform
+        
+        # Convert PoseArray into list of Poses in new transformed frame
+        tPath = []
+        for i, iPose in enumerate(self.local_path.poses):
+
+            # indexed pose stamped (ips)
+            ips = PoseStamped()
+            ips.header.frame_id = tf_stamped.child_frame_id
+            ips.header.seq = i
+            ips.pose = iPose
+
+            # transformed pose stamped (nps)
+            tps = tf2_geometry_msgs.do_transform_pose(ips, tf_stamped)
+            tPath.append(tps)
+
+        # transformed pose array (tpa)
+        tpa = PoseArray()
+        tpa.header.frame_id = parentFrame
+
+        # Convert list of transformed Poses back into a PoseArray (strips header off PoseStamped)
+        for iPose in tPath:
+            tpa.poses.append(iPose.pose)
+        
+        return tpa
+
+
 
 
 
@@ -109,6 +152,21 @@ class imageLoader():
 if __name__ == '__main__':
 
     canvas = imageLoader('grayscale/cloud_16x16.tif', scale=0.01, color=False)
-    path = canvas.generatePathPlan()
+    path = canvas.generateLocalPathPlan()
+
+
+    # Set Canvas Origin (meters)
+    canvas_origin = Transform()
+    canvas_origin.translation.x = 0.5
+    canvas_origin.translation.y = -canvas.width/2
+    canvas_origin.translation.z = 1
+    canvas_origin.rotation.x = 0
+    canvas_origin.rotation.y = 0.70711
+    canvas_origin.rotation.z = 0
+    canvas_origin.rotation.w = 0.70711
+
+    path_wrt_fixed = canvas.transformLocalPath(canvas_origin, 'base_link')
+
+    print('')
 
 #EOF
