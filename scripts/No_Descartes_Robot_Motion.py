@@ -35,7 +35,7 @@ import numpy as np
 
 # ROS
 import rospy
-from geometry_msgs.msg import Transform, Pose
+from geometry_msgs.msg import Transform, Pose, PoseArray
 from light_painting.msg import RGBState
 
 # Motion Planners
@@ -65,14 +65,33 @@ from paintPublisher import paintPublisher
 def main():
 
     # Motion Parameters
-    image_scale = 0.010 # meter
     TIME_GRAY_SCALE = 2/255 #20/255 # Arbitrary time--20 sec delay for pixel value of 25
 
+
+    ######
+    # ROS
+
+    # Init Paintbrush Color Publisher
+    pub_paint = rospy.Publisher('/monet/paintbrush_color', RGBState, queue_size=5)
+    paintColor = paintPublisher(pub_paint)
+
+    # Init PoseArray Publisher
+    pub_path = rospy.Publisher('/monet/canvasPoints', PoseArray, latch=True)
+
+    # Init Node
+    rospy.init_node('monet')
+    rospy.loginfo(">> Node 'monet' successfully created.")
+    rospy.Rate(10)
+
+
+    #############
     # Load Image
+
+    image_scale = 0.010 # meter
     canvas = imageLoader('grayscale/cloud_16x16.tif', scale=image_scale, color=False)
 
     # Calculate Local Raster Path across Image
-    path_wrt_canvas = canvas.generateLocalPathPlan()
+    canvas.generateLocalPathPlan()
 
     # Transform Canvas Origin (meters)
     canvas_origin = Transform()
@@ -86,10 +105,40 @@ def main():
 
     path_wrt_fixed = canvas.transformLocalPath(canvas_origin, 'base_link')
 
+    # Publish Path
+    pub_path.publish(path_wrt_fixed)
 
 
+    #######################
+    # Setup Motion Planner
+    rc = moveManipulator('mh5l')
+    rc.set_vel(0.1)
+    rc.set_accel(0.1)
 
 
+    ##############
+    # Main Runner
+
+    # Default Start Position
+    rc.goto_all_zeros() 
+
+    # Loop through Path
+    for i, cell in enumerate(path_wrt_fixed.poses):
+
+        # Move to position
+        rc.goto_Pose(cell)
+
+        # Set paintbrush color
+        paintColor.setGrayMsg(canvas.pixelList[i])
+
+        # Pause for light
+        time.sleep(0.5)
+
+        # Reset paintbrush
+        paintColor.setGrayMsg()
+
+    # Return to default Start Position
+    rc.goto_all_zeros() 
 
 
 
@@ -107,27 +156,10 @@ def oldMain():
     planner = 'simplemover'     # Options: moveit or simplemover
 
 
-    # init node & Publishers
-    pub_pixel_values = rospy.Publisher('/paintbrush_color', RGBState, queue_size=5)       
-    rospy.init_node('monet')
-    rospy.loginfo(">>monet node successfully created")
-    rospy.Rate(10)
-
 
     # initialize class
-    # pub_handle is a parameter for the class
-    pixel_value = paintPublisher(pub_pixel_values)
     smc = SimpleMoverClient()
     
-    # Initialize Robot Model
-    rc = moveManipulator('mh5l')
-    rc.set_vel(0.1)
-    rc.set_accel(0.1)
-
-    # If Move_robot = True, then robot will always start at all-zeros
-    if move_robot:
-        rc.goto_all_zeros() 
-
     # Based on global variables, robot goes to arbitrary start position
     # Top Left is origin (similar to image origin in computer graphics)
     waypoints = []
