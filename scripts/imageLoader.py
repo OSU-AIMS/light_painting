@@ -15,13 +15,19 @@
 ###########
 
 import cv2
-from os.path import join, abspath, dirname
+from os.path import join
 
 import rospy
 import rospkg
+from std_msgs.msg import Header
+from geometry_msgs.msg import Pose, PoseArray
+
 import numpy as np
 
 
+#######################
+# imageLoader() Class #
+#######################
 
 class imageLoader():
     """
@@ -30,25 +36,28 @@ class imageLoader():
 
     def __init__(self, filename, scale, color = True):
         """
-        Load image.
+        Load image and setup canvas with path planning properties.
         :param string filename: Filename with file extension (.tiff, .png, .jpg)
         :param float scale: Pixels height & width in meters.
         :param bool color: True if RGB color image. False if Grayscale image.
         """
 
         self.scale = scale
+        self.path = PoseArray()
 
         # Absolute Filepaths
         rospack = rospkg.RosPack()
-        img_path = join(rospack.get_ros_package_path('light_painting'), 'data', filename)
+        img_path = join(rospack.get_path('light_painting'), 'data', filename)
 
         # Load Image
         if color:
             self.img = cv2.imread(img_path, 1)
             cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
+            self.pixelList = np.transpose(self.img.reshape(3, self.img[0].size))
             rospy.loginfo("Loaded COLOR image.")
         else: 
             self.img = cv2.imread(img_path, 0)
+            self.pixelList = np.transpose(self.img.reshape(1, self.img.size))
             rospy.loginfo("Loaded GRAYSCALE image.")
 
         # Canvas Properties (meters)
@@ -65,61 +74,41 @@ class imageLoader():
         Generate a raster path plan moving through each pixel in the image.
         """
 
-        coords = np.indices(self.img.shape, dtype='float') * self.scale
+        # Setup PoseArray
+        myPath = PoseArray()
+        myPath.header.frame_id = 'canvas'
+
+        # Loop through each cell (pixel)
+        coords = np.indices(self.img.shape, dtype='float')
+        for r, c in np.nditer([coords[0], coords[1]]):
+            
+            # Build Pose
+            myPose = Pose()
+            myPose.position.x = r * self.scale
+            myPose.position.y = c * self.scale
+            myPose.position.z = 0
+            myPose.orientation.x = 0
+            myPose.orientation.y = 0
+            myPose.orientation.z = 0
+            myPose.orientation.w = 1
+
+            # Append Pose to PoseArray list
+            myPath.poses.append(myPose)
+            del myPose
+
+        # Exports
+        self.path = myPath
+        return self.path
 
 
 
-
-
+###########
+# Testing #
+###########
 
 if __name__ == '__main__':
 
     canvas = imageLoader('grayscale/cloud_16x16.tif', scale=0.01, color=False)
+    path = canvas.generatePathPlan()
 
-
-
-
-
-
-
-####################################################################################################
-####################################################################################################
-####################################################################################################
-
-# CWD = dirname(abspath(__file__)) # Control Working Directory - goes to script location
-# RESOURCES = join(CWD,'images') # combine script location with folder name
-
-# # Types of image resources
-# BINARY = join(RESOURCES,'binary') # combine image folder location with binary
-# GRAYSCALE = join(RESOURCES,'grayscale') 
-# R_G_B = join(RESOURCES,'color') 
-
-# ########### Binary Images:###################
-# white_rim4x3 = 'white_rim_4x3.tif'
-# white_rim3x3 = 'white_rim_3x3.tif'
-# blockO = 'block-O_10x10.tif'
-# aims = 'AIMS_20x5.tif'
-
-# binary = cv2.imread(join(BINARY,white_rim3x3),0)
-
-# ########### RGB images: #####################
-# green_cross = 'green_cross.tif' # 3x3 image
-# blockO_rgb = 'block_o_RGB.tif' # 10x10 image
-
-# BGR = cv2.imread(join(R_G_B,green_cross))
-# RGB = cv2.cvtColor(BGR,cv2.COLOR_BGR2RGB)
-
-# ########### GrayScale Images ##################
-# sweep_10x20 = 'sweep.tif'
-# sweep_3x3 = 'sweep_3x3.tif'
-# sweep_3x5 = 'sweep_3x5.tif'
-# radial_9x9 = 'radial_gradient_9x9.tif'
-# sweep_10x11 = 'sweep_10x11.tif'
-# sweep_10x11 = 'sweep_10x11.tif'
-# sweep_8x5= 'sweep_8x5.tif'
-# gauss = 'gauss_1x10.tif'
-# cloud = 'cloud_16x16.tif'
-
-# GS = cv2.imread(join(GRAYSCALE,sweep_3x3),0)
-
-
+#EOF
