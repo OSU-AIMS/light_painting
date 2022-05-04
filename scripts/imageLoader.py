@@ -68,8 +68,8 @@ class imageLoader():
         self.width = self.img.shape[1] * scale
 
         # Report
-        rospy.loginfo("Height of Image (# rows): ", self.height)
-        rospy.loginfo("Width of Image (# cols): ", self.width)
+        rospy.loginfo("Height of Image (# rows): %s", str(self.height))
+        rospy.loginfo("Width of Image (# cols): %s", str(self.width))
 
 
     def generateLocalPathPlan(self) -> PoseArray:
