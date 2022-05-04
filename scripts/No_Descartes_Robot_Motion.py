@@ -47,26 +47,6 @@ from imageLoader import imageLoader
 from paintPublisher import paintPublisher
 
 
-
-#######################
-## MOTION PARAMETERS ##
-#######################
-
-image_scale = 0.010 # m 
-TIME_GRAY_SCALE = 2/255 #20/255 # Arbitrary time--20 sec delay for pixel value of 25
-
-#################
-## INPUT IMAGE ##
-#################
-
-canvas = imageLoader('grayscale/cloud_16x16.tif', scale=image_scale, color=False)
-
-
-
-# Starting positions for robot
-z_start = 1 # m - arbitrary height to get down elbow position more often
-y_start = -canvas.width/2 # m
-
 ###############
 ## FUNCTIONS ##
 ###############
@@ -74,24 +54,7 @@ y_start = -canvas.width/2 # m
 
 
 
-###################
-## OLD FUNCTIONS ##
-###################
 
-def nextRow(wpose):
-    # Purpose: moves robot to next row
-    wpose.position.z -= MOTION_BOX_scale
-    wpose.position.y = y_start # same y-axis starting value
-    waypoints= []
-    waypoints.append(copy.deepcopy(wpose))
-    return waypoints
-
-def nextColumn(wpose):
-    # Purpose: increments to next column
-    wpose.position.y += MOTION_BOX_scale
-    waypoints= []
-    waypoints.append(copy.deepcopy(wpose))
-    return waypoints
 
 
 
@@ -101,7 +64,28 @@ def nextColumn(wpose):
 
 def main():
 
-    # input(f"To Continue press <enter>")
+    # Motion Parameters
+    image_scale = 0.010 # meter
+    TIME_GRAY_SCALE = 2/255 #20/255 # Arbitrary time--20 sec delay for pixel value of 25
+
+    # Load Image
+    canvas = imageLoader('grayscale/cloud_16x16.tif', scale=image_scale, color=False)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def oldMain():
 
     move_robot = True           # set equal to False to not move robot
     planner = 'simplemover'     # Options: moveit or simplemover
@@ -270,6 +254,33 @@ def main():
     except KeyboardInterrupt:
         print("Shutting down")
     cv2.destroyAllWindows()
+
+
+
+###################
+## OLD FUNCTIONS ##
+###################
+
+def nextRow(wpose):
+    # Purpose: moves robot to next row
+    wpose.position.z -= canvas.scale
+    wpose.position.y = y_start # same y-axis starting value
+    waypoints= []
+    waypoints.append(copy.deepcopy(wpose))
+    return waypoints
+
+def nextColumn(wpose):
+    # Purpose: increments to next column
+    wpose.position.y += canvas.scale
+    waypoints= []
+    waypoints.append(copy.deepcopy(wpose))
+    return waypoints
+
+
+
+
+
+
     
 
 if __name__ == '__main__':
