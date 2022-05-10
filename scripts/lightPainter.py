@@ -12,30 +12,13 @@
 # 
 
 
-
-"""
-Script does not use Descartes. Solely ROS MoveIt planner
-- Uses image Processing Class
-- Robot is inclined to do extraneous motion
-"""
-
-
-
 ###########
 # Imports #
 ###########
 
-# Utilities
-import copy
-import time
-
-# Image Manipulation
-import cv2
-import numpy as np
-
 # ROS
 import rospy
-from geometry_msgs.msg import Transform, Pose, PoseArray
+from geometry_msgs.msg import Transform, PoseArray
 from light_painting.msg import RGBState
 
 # Motion Planners
@@ -125,7 +108,7 @@ def main():
             paintColor.setGrayMsg(canvas.pixelList[i])
 
             # Pause for light
-            time.sleep(0.5)
+            rospy.sleep(0.5)
 
             # Reset paintbrush
             paintColor.setGrayMsg()
