@@ -6,7 +6,10 @@
 <launch>
 
     <!-- Input Args -->
-    <arg name="image_path" default="true" />
+    <arg name="image_path" default="$(find light_painting)/data/binary/plus_sign_3x3.tif" />
+    
+    <!-- ROS Parameters -->
+    <rosparam param="selected_image_path" subst_value="true">$(arg image_path)</rosparam>
 
     <!-- Launch Master Script -->
     <node pkg="light_painting" type="lightPainter.py" name="PainterNode" respawn="false" />

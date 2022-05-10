@@ -16,6 +16,9 @@
 # Imports #
 ###########
 
+import os
+import sys
+
 # ROS
 import rospy
 from geometry_msgs.msg import Transform, PoseArray
@@ -35,7 +38,7 @@ from paintPublisher import paintPublisher
 ## MAIN ##
 ##########
 
-def main():
+def main(image_filepath):
 
     # Motion Parameters
     TIME_GRAY_SCALE = 2/255 #20/255 # Arbitrary time--20 sec delay for pixel value of 25
@@ -61,7 +64,7 @@ def main():
     # Load Image
 
     image_scale = 0.010 # meter
-    canvas = imageLoader('grayscale/cloud_16x16.tif', scale=image_scale, color=False)
+    canvas = imageLoader(image_filepath, scale=image_scale, color=False)
 
     # Calculate Local Raster Path across Image
     canvas.generateLocalPathPlan()
@@ -129,8 +132,21 @@ def main():
 ###########
 
 if __name__ == '__main__':
+    """
+    Expects a single input which is the absolute file path to the image to process.
+    """
+
+    # Input Arguments
+    img_filepath = rospy.get_param("selected_image_path")
+
+    # Check path validity
+    if not os.path.isfile(img_filepath): 
+        rospy.signal_shutdown("Node Shutdown. Input filepath is not valid.")
+        sys.exit(1)
+
+    # Start Program
     try:
-        main()
+        main(img_filepath)
     except rospy.ROSInterruptException:
         rospy.logwarn("Light Painter program interrupted before completion.")
         print(file=sys.stderr)
@@ -139,5 +155,3 @@ if __name__ == '__main__':
 
     # Shutdown
     rospy.signal_shutdown("")
-
-    
