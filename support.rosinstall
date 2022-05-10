@@ -1,0 +1,2 @@
+- git: {local-name: descartes, uri: 'https://github.com/ros-industrial-consortium/descartes.git', version: melodic-devel}
+- git: {local-name: aims-robots-all, uri: 'https://github.com/osu-aims/aims-robots-all.git', version: main}
