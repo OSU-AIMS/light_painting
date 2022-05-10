@@ -47,16 +47,6 @@ from imageLoader import imageLoader
 from paintPublisher import paintPublisher
 
 
-###############
-## FUNCTIONS ##
-###############
-
-
-
-
-
-
-
 
 ##########
 ## MAIN ##
@@ -76,10 +66,10 @@ def main():
     paintColor = paintPublisher(pub_paint)
 
     # Init PoseArray Publisher
-    pub_path = rospy.Publisher('/monet/canvasPoints', PoseArray, latch=True)
+    pub_path = rospy.Publisher('/monet/canvasPoints', PoseArray, latch=True, queue_size=1)
 
     # Init Node
-    rospy.init_node('monet')
+    rospy.init_node('monet', anonymous=False, disable_signals=True)
     rospy.loginfo(">> Node 'monet' successfully created.")
     rospy.Rate(10)
 
@@ -109,11 +99,13 @@ def main():
     pub_path.publish(path_wrt_fixed)
 
 
-    #######################
-    # Setup Motion Planner
+    ########################
+    # Setup Motion Planners
     rc = moveManipulator('mh5l')
     rc.set_vel(0.1)
     rc.set_accel(0.1)
+
+    # smc = SimpleMoverClient()
 
 
     ##############
@@ -123,28 +115,35 @@ def main():
     rc.goto_all_zeros() 
 
     # Loop through Path
-    for i, cell in enumerate(path_wrt_fixed.poses):
+    try:
+        for i, cell in enumerate(path_wrt_fixed.poses):
+            # Move to position
+            rc.goto_Pose(cell)
+            # result = smc.setNewGoal(cell, 5)
 
-        # Move to position
-        rc.goto_Pose(cell)
+            # Set paintbrush color
+            paintColor.setGrayMsg(canvas.pixelList[i])
 
-        # Set paintbrush color
-        paintColor.setGrayMsg(canvas.pixelList[i])
+            # Pause for light
+            time.sleep(0.5)
 
-        # Pause for light
-        time.sleep(0.5)
+            # Reset paintbrush
+            paintColor.setGrayMsg()
 
-        # Reset paintbrush
-        paintColor.setGrayMsg()
+    except rospy.ROSInternalException:
+        pass
+    except KeyboardInterrupt:
+        rospy.logwarn("Light Painter program interrupted by user. Returning to all-zero position.")
+        pass
 
     # Return to default Start Position
     rc.goto_all_zeros() 
 
 
 
-
-
-
+###########
+## Start ##
+###########
 
 
 
@@ -158,7 +157,7 @@ def oldMain():
 
 
     # initialize class
-    smc = SimpleMoverClient()
+    
     
     # Based on global variables, robot goes to arbitrary start position
     # Top Left is origin (similar to image origin in computer graphics)
@@ -335,6 +334,12 @@ if __name__ == '__main__':
     try:
         main()
     except rospy.ROSInterruptException:
-        print("program interrupted before completion", file=sys.stderr)
+        rospy.logwarn("Light Painter program interrupted before completion.")
+        print(file=sys.stderr)
+    except KeyboardInterrupt:
+        rospy.logwarn("Light Painter program interrupted by user. Node shutting down.")
+
+    # Shutdown
+    rospy.signal_shutdown("")
 
     

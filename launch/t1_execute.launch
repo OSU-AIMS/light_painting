@@ -9,6 +9,6 @@
     <arg name="image_path" default="true" />
 
     <!-- Launch Master Script -->
-    <node pkg="light_painting" type="No_Descartes_Robot_Motion.py" name="PainterNode" respawn="false" />
+    <node pkg="light_painting" type="lightPainter.py" name="PainterNode" respawn="false" />
 
 </launch>
