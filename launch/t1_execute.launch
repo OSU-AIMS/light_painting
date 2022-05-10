@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Main Runner -->
+<!-- Must have roslaunch'ed 't1_initialize.launch' before running this file. -->
+
+<launch>
+
+    <!-- Input Args -->
+    <arg name="image_path" default="true" />
+
+    <!-- Launch Master Script -->
+    <node pkg="light_painting" type="lightPainter.py" name="PainterNode" respawn="false" />
+
+</launch>

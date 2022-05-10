@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<launch>
-
-    <!-- Launch actual code to test -->
-    <node pkg="light_painting" type="single_move_action" name="single_move_action" />
-    
-</launch>

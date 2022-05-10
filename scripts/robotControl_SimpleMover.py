@@ -55,9 +55,10 @@ class SimpleMoverClient(object):
 
 
 if __name__ == '__main__':
-    rospy.loginfo("THIS SCRIPT TO BE RUN ONLY FOR UNIT TESTING HARDWARE:")
 
     import rospy
+    rospy.loginfo("THIS SCRIPT TO BE RUN ONLY FOR UNIT TESTING HARDWARE:")
+
 
     # Setup
     rospy.init_node('test')
