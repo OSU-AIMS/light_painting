@@ -1,0 +1,17 @@
+<library path="src">
+  <class name="LightPainterGUI" type="light_painting_module.lp_gui.LightPaintingPlugin" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      light_painter_gui provides a GUI plugin for loading images into the painting tool.
+    </description>
+    <qtgui>
+      <group>
+        <label>AIMS</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins developed by the AIMS Lab.</statustip>
+      </group>
+      <label>Light Painting GUI</label>
+      <icon type="theme">applications-graphics</icon>
+      <statustip>A python GUI plugin for interacting with the Light Painter Program.</statustip>
+    </qtgui>
+  </class>
+</library>
