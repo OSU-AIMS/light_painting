@@ -1,0 +1,3 @@
+<launch>
+	<param name="robot_description" command="$(find xacro)/xacro --inorder '$(find lp_support)/urdf/light_paint.xacro'" />
+</launch>

@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+
+<robot name="eef_light_paint" xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:include filename="$(find lp_support)/urdf/light_paint_macro.xacro" />
+    <xacro:light_paint prefix=""/>
+
+</robot>

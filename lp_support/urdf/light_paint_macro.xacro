@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+<xacro:macro name="light_paint" params="prefix">
+
+<!-- Light Paint EEF URDF -->
+
+    <link name="${prefix}eef_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://lp_support/meshes/light_paint_visual.stl"/>
+            </geometry>
+            <material name="eef">
+                <color rgba="0.5 0.8 0.5 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="package://lp_support/meshes/light_paint_collision.stl"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <!-- EEF TCP Defined as the center point between EEF finger tips -->
+    <joint name="${prefix}eef_link-eef_tcp" type="fixed">
+        <origin xyz="0.07 0 0" rpy="${radians(180)} ${radians(-90)} 0"/>
+        <parent link="${prefix}eef_link"/>
+        <child link="${prefix}eef_tcp"/> 
+    </joint>
+
+    <link name="${prefix}eef_tcp"/>
+
+</xacro:macro>
+</robot>
